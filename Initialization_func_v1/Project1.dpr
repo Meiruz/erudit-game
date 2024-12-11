@@ -1,0 +1,131 @@
+Program Project1;
+
+{$APPTYPE CONSOLE}
+{$R *.res}
+
+Uses
+    System.SysUtils;
+
+Type
+    TLang = (RUS, ENG);
+    TArrayInt = Array Of Integer;
+    TArrayStr = Array Of String;
+    TArrayBool = Array Of Boolean;
+
+
+Const
+    COL_LETTERS_RU = 33;
+    COL_LETTERS_EN = 26;
+    COL_PLAYERS_MIN = 1;
+    COL_PLAYERS_MAX = 4;
+    RUS_A = 128;
+    ENG_A = 65;
+
+Var
+    Language: TLang;
+    ColUsers: Integer;
+    ColOfAllLetters: Integer;
+    PlayersNames: TArrayStr;
+    LettersBank: TArrayInt;
+    PlayersRes: TArrayInt;
+    PlayersBonus1: TArrayBool;
+    PlayersBonus2: TArrayBool;
+    ActiveUser: Integer;
+
+Function ChoiceLanguage(): TLang;
+Var
+    Choice: String;
+    IsCorrect: Boolean;
+Begin
+    Repeat
+        IsCorrect := True;
+        Writeln('Select language: Russian - RUS or English - ENG');
+        Readln(Choice);
+        If Choice = 'RUS' Then
+            ChoiceLanguage := RUS
+        Else If Choice = 'ENG' Then
+            ChoiceLanguage := ENG
+        Else
+        Begin
+            Writeln('Error');
+            IsCorrect := False;
+        End;
+    Until IsCorrect;
+End;
+
+Function ColUsersInput(): Integer;
+Var
+    Players: Integer;
+    IsCorrect: Boolean;
+Begin
+    Repeat
+        IsCorrect := True;
+        Writeln('Enter the number of players');
+        Try
+            Readln(Players);
+        Except
+            Writeln('Error');
+            IsCorrect := False;
+        End;
+        If (Players < COL_PLAYERS_MIN) Or (Players > COL_PLAYERS_MAX) Then
+        Begin
+            Writeln('Invalid number of players');
+            IsCorrect := False;
+        End;
+    Until IsCorrect;
+    ColUsersInput := Players;
+End;
+
+Procedure UsersInitialization(Var PlayersNames: TArrayStr; Var PlayersRes: TArrayInt; Var PlayersBonus1: TArrayBool; Var PlayersBonus2: TArrayBool);
+Var
+    I: Integer;
+Begin
+    For I := 0 To High(PlayersNames) Do
+    Begin
+        Writeln('Enter player name number ', I+1);
+        Readln(PlayersNames[I]);
+        PlayersRes[I] := 0;
+        PlayersBonus1[I] := True;
+        PlayersBonus2[I] := True;
+    End;
+End;
+
+Procedure Preparation(Var ColUsers: Integer; Var Language: TLang;
+    Var ColOfAllLetters: Integer; Var LettersBank: TArrayInt;
+    Var PlayersNames: TArrayStr; Var PlayersRes: TArrayInt;
+    Var PlayersBonus1: TArrayBool; Var PlayersBonus2: TArrayBool;
+    Var ActiveUser: Integer);
+Var
+    I: Integer;
+Begin
+    Language := ChoiceLanguage();
+    ColUsers := ColUsersInput();
+    ActiveUser := 0;
+
+    SetLength(PlayersNames, ColUsers);
+    SetLength(PlayersRes, ColUsers);
+    SetLength(PlayersBonus1, ColUsers);
+    SetLength(PlayersBonus2, ColUsers);
+
+    UsersInitialization(PlayersNames, PlayersRes, PlayersBonus1, PlayersBonus2);
+
+
+    If Language = RUS Then
+    Begin
+        ColOfAllLetters := COL_LETTERS_RU * 4;
+        SetLength(LettersBank, COL_LETTERS_RU);
+    End
+    Else
+    Begin
+        ColOfAllLetters := COL_LETTERS_EN * 4;
+        SetLength(LettersBank, COL_LETTERS_EN);
+    End;
+    For I := 0 To High(LettersBank) Do
+        LettersBank[I] := 4;
+End;
+
+Begin
+
+    Preparation(ColUsers, Language, ColOfAllLetters, LettersBank, PlayersNames, PlayersRes, PlayersBonus1, PlayersBonus2, ActiveUser);
+
+End.
