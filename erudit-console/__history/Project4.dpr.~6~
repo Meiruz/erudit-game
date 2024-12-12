@@ -53,6 +53,9 @@ Begin
         PlayersRes[I] := 0;
     End;
 
+    For I := 0 To High(LettersBank) Do
+        LettersBank[I] := 4;
+
     If Language = RUS Then
     Begin
         ColOfAllLetters := COL_LETTERS_RU * 4;
@@ -63,9 +66,6 @@ Begin
         ColOfAllLetters := COL_LETTERS_EN * 4;
         SetLength(LettersBank, COL_LETTERS_EN);
     End;
-
-    For I := 0 To High(LettersBank) Do
-        LettersBank[I] := 4;
 
 End;
 

@@ -37,21 +37,16 @@ Var
     I: Integer;
 Begin
     Language := Lang;
-    ColUsers := High(UserNames) + 1;
-    PlayersNames := UserNames;
-
+    ColUsers := High(UserNames)+1;
     ActiveUser := 0;
 
+    SetLength(PlayersNames, ColUsers);
     SetLength(PlayersRes, ColUsers);
     SetLength(PlayersBonus1, ColUsers);
     SetLength(PlayersBonus2, ColUsers);
 
-    For I := 0 To High(UserNames) Do
-    Begin
-        PlayersBonus1[I] := True;
-        PlayersBonus2[I] := True;
-        PlayersRes[I] := 0;
-    End;
+    UsersInitialization(PlayersNames, PlayersRes, PlayersBonus1, PlayersBonus2);
+
 
     If Language = RUS Then
     Begin
@@ -63,14 +58,12 @@ Begin
         ColOfAllLetters := COL_LETTERS_EN * 4;
         SetLength(LettersBank, COL_LETTERS_EN);
     End;
-
     For I := 0 To High(LettersBank) Do
         LettersBank[I] := 4;
-
 End;
 
 Begin
 
-    Preparation(Language, PlayersNames);
+    Preparation(ColUsers, Language, ColOfAllLetters, LettersBank, PlayersNames, PlayersRes, PlayersBonus1, PlayersBonus2, ActiveUser);
 
 End.
