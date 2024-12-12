@@ -58,13 +58,12 @@ Begin
     Begin
         ColOfAllLetters := COL_LETTERS_RU * 4;
         SetLength(LettersBank, COL_LETTERS_RU);
-        ValueA := RUS_A;
+
     End
     Else
     Begin
         ColOfAllLetters := COL_LETTERS_EN * 4;
         SetLength(LettersBank, COL_LETTERS_EN);
-        ValueA := ENG_A;
     End;
 
     For I := 0 To High(LettersBank) Do
