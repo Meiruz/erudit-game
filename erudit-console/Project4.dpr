@@ -1,17 +1,79 @@
-program Project4;
+Program Project1;
 
 {$APPTYPE CONSOLE}
-
 {$R *.res}
 
-uses
-  System.SysUtils;
+Uses
+    System.SysUtils;
 
-begin
-  try
-    { TODO -oUser -cConsole Main : Insert code here }
-  except
-    on E: Exception do
-      Writeln(E.ClassName, ': ', E.Message);
-  end;
-end.
+Type
+    TLang = (RUS, ENG);
+    TArrayInt = Array Of Integer;
+    TArrayStr = Array Of String;
+    TArrayBool = Array Of Boolean;
+
+
+Const
+    COL_LETTERS_RU = 33;
+    COL_LETTERS_EN = 26;
+    COL_PLAYERS_MIN = 1;
+    COL_PLAYERS_MAX = 4;
+    RUS_A = 128;
+    ENG_A = 65;
+
+Var
+    Language: TLang;
+    ColUsers: Integer;
+    ColOfAllLetters: Integer;
+    PlayersNames: TArrayStr;
+    LettersBank: TArrayInt;
+    PlayersRes: TArrayInt;
+    PlayersBonus1: TArrayBool;
+    PlayersBonus2: TArrayBool;
+    ActiveUser: Integer;
+    ValueA: Integer;
+
+Procedure Preparation(Const Lang: TLang; Const UserNames: TArrayStr);
+Var
+    I: Integer;
+Begin
+    Language := Lang;
+    ColUsers := High(UserNames) + 1;
+    PlayersNames := UserNames;
+
+    ActiveUser := 0;
+
+    SetLength(PlayersRes, ColUsers);
+    SetLength(PlayersBonus1, ColUsers);
+    SetLength(PlayersBonus2, ColUsers);
+
+    For I := 0 To High(UserNames) Do
+    Begin
+        PlayersBonus1[I] := True;
+        PlayersBonus2[I] := True;
+        PlayersRes[I] := 0;
+    End;
+
+    If Language = RUS Then
+    Begin
+        ColOfAllLetters := COL_LETTERS_RU * 4;
+        SetLength(LettersBank, COL_LETTERS_RU);
+        ValueA := RUS_A;
+    End
+    Else
+    Begin
+        ColOfAllLetters := COL_LETTERS_EN * 4;
+        SetLength(LettersBank, COL_LETTERS_EN);
+        ValueA := ENG_A;
+    End;
+
+    For I := 0 To High(LettersBank) Do
+        LettersBank[I] := 4;
+
+End;
+
+Begin
+
+    Preparation(Language, PlayersNames);
+
+End.
