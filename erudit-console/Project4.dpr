@@ -40,7 +40,7 @@ Begin
     ColPlayers := High(UserNames) + 1;
     PlayerNames := UserNames;
 
-    ActivePlayer := -1;
+    ActivePlayer := 0;
 
     SetLength(PlayersRes, ColPlayers);
     SetLength(PlayersBonus1, ColPlayers);
@@ -163,14 +163,14 @@ Begin
     IsGameOn := True;
     While IsGameOn Do
     Begin
-        ActivePlayer := (ActivePlayer + 1) Mod ColPlayers;
-
         Writeln('Player #', ActivePlayer + 1, ' (',
             PlayerNames[ActivePlayer], '): ');
         Readln(RequestStr);
 
         Inc(PlayersRes[ActivePlayer], 0);
         History[ActivePlayer] := PlayersRes[ActivePlayer];
+
+        ActivePlayer := (ActivePlayer + 1) Mod ColPlayers;
 
         IsGameOn := False;
         For Var I := 0 To High(History) Do
