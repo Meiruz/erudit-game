@@ -102,21 +102,18 @@ End;
 
 Function CheckStrForLimit(PlayersWord: String): Boolean;
 Begin
-    Result := Not(Length(PlayersWord) > COL_LETTERS_FOR_USER);
+    Result := Length(PlayersWord) <= COL_LETTERS_FOR_USER;
 End;
 
 Procedure ReadlnStrWithChecking(Var PlayersWord: String);
+Var
+    IsOk: Boolean;
 Begin
-    Var
-        IsOk: Boolean;
-    Begin
-        Repeat
-            IsOk := True;
-            Readln(PlayersWord);
-            IsOk := CheckStrForLimit(PlayersWord);
-        Until IsOk;
+    Repeat
+        Readln(PlayersWord);
+        IsOk := CheckStrForLimit(PlayersWord);
+    Until IsOk;
 
-    End;
 End;
 
 Procedure ReadlnIntWithChecking(Var Value: Integer;
