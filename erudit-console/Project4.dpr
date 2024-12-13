@@ -10,8 +10,10 @@ Type
     TArrayInt = Array Of Integer;
     TArrayStr = Array Of String;
     TArrayBool = Array Of Boolean;
+    TMatrixChar = Array Of Array Of Char;
 
 Const
+    COL_LETTERS_FOR_USER = 10;
     COL_LETTERS_RU = 33;
     COL_LETTERS_EN = 26;
     COL_PLAYERS_MIN = 1;
@@ -25,6 +27,7 @@ Var
     ColOfAllLetters: Integer;
     PlayerNames: TArrayStr;
     LettersBank: TArrayInt;
+    PlayersLetters: TMatrixChar;
     PlayersRes: TArrayInt;
     PlayersBonus1: TArrayBool;
     PlayersBonus2: TArrayBool;
@@ -76,6 +79,25 @@ End;
 Function CheckIntForLimit(Const Value, MinLimit, MaxLimit: Integer): Boolean;
 Begin
     Result := Not((Value < MinLimit) Or (Value > MaxLimit));
+End;
+
+Procedure GivePlayersTheirLetters(Const IndexPlayer: Integer);
+Var
+    Ind, Pos: Integer;
+Begin
+    Ind := 0;
+    While (Ind < COL_LETTERS_FOR_USER) And (ColOfAllLetters > 0) Do
+    Begin
+        If PlayersLetters[IndexPlayer][Ind] = #0 Then
+        Begin
+            Pos := 0;
+            PlayersLetters[IndexPlayer][Ind] := Chr(ValueA + Pos);
+            Dec(ColOfAllLetters);
+            Dec(LettersBank[Pos]);
+        End;
+
+        Inc(Ind);
+    End;
 End;
 
 Procedure ReadlnIntWithChecking(Var Value: Integer;
