@@ -73,6 +73,29 @@ Begin
 
 End;
 
+Function CheckIntForLimit(Const Value, MinLimit, MaxLimit: Integer): Boolean;
+Begin
+    Result := Not((Value < MinLimit) Or (Value > MaxLimit));
+End;
+
+Procedure ReadlnIntWithChecking(Var Value: Integer;
+    Const MinLimit, MaxLimit: Integer);
+Var
+    IsOk: Boolean;
+Begin
+    Repeat
+        IsOk := True;
+        Try
+            Readln(Value);
+        Except
+            IsOk := False;
+        End;
+        If IsOk Then
+            IsOk := CheckIntForLimit(Value, MinLimit, MaxLimit);
+    Until IsOk;
+
+End;
+
 Procedure Bonus_1_50(Var PlayersLetters: TArrayStr; Var PlayersRes: TArrayInt);
 
 Var
@@ -94,7 +117,7 @@ Begin
             PlayersLetters[ActivePlayer][I] := 'A';
     End;
     WriteLn('Changed letters: ', PlayersLetters[ActivePlayer]);
-    PlayersRes[ActivePlayer] := PlayersRes[ActivePlayer] div 2;
+    PlayersRes[ActivePlayer] := PlayersRes[ActivePlayer] Div 2;
 End;
 
 Procedure Bonus_2_Swap(Var PlayersLetters: TArrayStr);
