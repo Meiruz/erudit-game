@@ -78,8 +78,8 @@ This program was being developed by:
   - **Rak Igor**
   - **Koval Daniil**
   - **Baranovskiy Konstantin**
-  - **Romanovksaya Darya**
-  - **Rublesvkaya Kseniya**
+  - **Romanovskaya Darya**
+  - **Rublevskaya Ksenia**
 ---
 
 ## License
