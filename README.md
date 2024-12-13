@@ -73,13 +73,13 @@ Each player can use the following bonuses once per game:
 ## Author
 This program was being developed by: 
   - **Pavel Ivanov**
-  - **Belkevich Konstantin**
+  - **Belkovich Konstantin**
   - **Koval Daniil**
   - **Rak Igor**
   - **Redko Anton** 
   - **Baranovskiy Konstantin**
-  - **Rublesvkaya Kseniya**
   - **Romanovksaya Darya**
+  - **Rublesvkaya Kseniya**
 ---
 
 ## License
