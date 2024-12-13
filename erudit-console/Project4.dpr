@@ -90,6 +90,18 @@ Begin
 
 End;
 
+Function PlayersWithMaxPointsFound(MaxPoints: Integer): Integer;
+Var
+    I: Integer;
+    { IndexesOfWinners: Array Of Boolean; }
+Begin
+    For I := 0 To High(PlayersRes) Do
+        If PlayersRes[I] = MaxPoints Then
+            { IndexesOfWinners[I] := True; }
+            Writeln(I);
+
+End;
+
 Function CheckIntForLimit(Const Value, MinLimit, MaxLimit: Integer): Boolean;
 Begin
     Result := Not((Value < MinLimit) Or (Value > MaxLimit));
