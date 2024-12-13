@@ -83,5 +83,5 @@ This program was being developed by:
 ---
 
 ## License
-This project is licensed under the OsipSoft Technology.
+This project is licensed under the OpiJouSoft Technology.
 
