@@ -11,15 +11,20 @@ Type
     TArrayStr = Array Of String;
     TArrayBool = Array Of Boolean;
     TMatrixChar = Array Of Array Of Char;
+    TMessages = (MFailStrLen, MFailIntRage, MFailInt);
 
 Const
     COL_LETTERS_FOR_USER = 10;
     COL_LETTERS_RU = 33;
     COL_LETTERS_EN = 26;
-    COL_PLAYERS_MIN = 1;
-    COL_PLAYERS_MAX = 4;
+    COL_PLAYERS_MIN = 2;
+    COL_PLAYERS_MAX = 5;
     RUS_A = 128;
     ENG_A = 65;
+    MESSAGES: Array [TMessages] Of String = (
+      'String is so long. Repeat: ',
+      'Fail number limit. Repeat: ',
+      'Fail data. Repeat: ');
 
 Var
     Language: TLang;
@@ -104,7 +109,7 @@ End;
 
 Function CheckIntForLimit(Const Value, MinLimit, MaxLimit: Integer): Boolean;
 Begin
-    Result := Not((Value < MinLimit) Or (Value > MaxLimit));
+    Result := (Value >= MinLimit) and (Value <= MaxLimit);
 End;
 
 Procedure GivePlayersTheirLetters(Const IndexPlayer: Integer);
@@ -126,18 +131,21 @@ Begin
     End;
 End;
 
-Function CheckStrForLimit(PlayersWord: String): Boolean;
+Function CheckStrForLimit(const PlayersWord: String; const len: integer): Boolean;
 Begin
-    Result := Length(PlayersWord) <= COL_LETTERS_FOR_USER;
+    Result := Length(PlayersWord) <= len;
 End;
 
-Procedure ReadlnStrWithChecking(Var PlayersWord: String);
+Procedure ReadlnStrWithChecking(Var PlayersWord: String; const len: integer);
 Var
     IsOk: Boolean;
 Begin
     Repeat
         Readln(PlayersWord);
-        IsOk := CheckStrForLimit(PlayersWord);
+        IsOk := CheckStrForLimit(PlayersWord, len);
+
+        if not(isOk) then
+            write(MESSAGES[MFailStrLen]);
     Until IsOk;
 
 End;
@@ -152,10 +160,13 @@ Begin
         Try
             Readln(Value);
         Except
+            Write(MESSAGES[MFailInt]);
             IsOk := False;
         End;
         If IsOk Then
             IsOk := CheckIntForLimit(Value, MinLimit, MaxLimit);
+        If not isOk then
+          write(MESSAGES[MFailIntRage]);
     Until IsOk;
 
 End;
@@ -226,20 +237,18 @@ Begin
     Writeln('~~~ ERUDIT GAME ~~~');
     Writeln('Rules of game');
 
-    Writeln('Choose language:', #13#10, #9, '1-RUSSIAN', #13#10, #9,
-        '2-ENGLISH');
-    Readln(LangNum);
-    // ReadlnIntWithChecking(LangNum);
+    Write('Choose language:', #13#10, #9, '1-RUSSIAN', #13#10, #9,
+        '2-ENGLISH', #13#10, ' -> ');
+    ReadlnIntWithChecking(LangNum, 1, 2);
 
-    Writeln('Write count of players (from 2 to 5):');
-    Readln(UsersNum);
-    // ReadlnWithChecking(UsersNum);
+    Write('Write count of players (from 2 to 5): ');
+    ReadlnIntWithChecking(UsersNum, COL_PLAYERS_MIN, COL_PLAYERS_MAX);
 
     SetLength(UserNames, UsersNum);
     For Var I := 0 To High(UserNames) Do
     Begin
         Write('Name of player #', I + 1, ': ');
-        Readln(UserNames[I]);
+        ReadlnStrWithChecking(UserNames[I], 10);
     End;
 
     If LangNum = 1 Then
@@ -252,7 +261,9 @@ Begin
     Begin
         Writeln('Player #', ActivePlayer + 1, ' (',
             PlayerNames[ActivePlayer], '): ');
-        Readln(RequestStr);
+
+        //function to find num of letters for use
+        ReadlnStrWithChecking(RequestStr, 10);
 
         Inc(PlayersRes[ActivePlayer], 0);
         History[ActivePlayer] := PlayersRes[ActivePlayer];
