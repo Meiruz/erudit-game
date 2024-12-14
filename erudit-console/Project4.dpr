@@ -29,9 +29,16 @@ Const
 Var
     Language: TLang;
     ColPlayers: Integer;
-    ColOfAllLetters: Integer;
+    ColOfAllLetters: Integer;           //надо ли оно вообще
     PlayerNames: TArrayStr;
-    LettersBank: TArrayInt;
+    LettersBank: TArrayInt;             // неявно
+                                        // int - индекс буквы
+
+    //a b c
+    //4 4 4
+
+    //
+
     PlayersLetters: TMatrixChar;
     PlayersRes: TArrayInt;
     PlayersBonus1: TArrayBool;
