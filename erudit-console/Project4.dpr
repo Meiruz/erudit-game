@@ -10,6 +10,7 @@ Type
     TArrayInt = Array Of Integer;
     TArrayStr = Array Of String;
     TArrayBool = Array Of Boolean;
+    TMatrix = Array Of Array Of String;
 
 Const
     COL_LETTERS_RU = 33;
@@ -18,6 +19,7 @@ Const
     COL_PLAYERS_MAX = 4;
     RUS_A = 128;
     ENG_A = 65;
+    COL_USER_LETTERS = 10;
 
 Var
     Language: TLang;
@@ -73,6 +75,43 @@ Begin
 
 End;
 
+Function FindStrInUserLetters(AnswerStr: String; MatrixOfUserLetters: TMatrix;
+    ActiveUser: Integer): Boolean;
+Var
+    I, J, NumOfMatches: Integer;
+Begin
+    For I := 1 To Length(AnswerStr) Do
+    Begin
+        NumOfMatches := 0;
+        For J := 1 To COL_USER_LETTERS Do
+        Begin
+            If AnswerStr[I] = MatrixOfUserLetters[ActiveUser][J] Then
+                Inc(NumOfMatches);
+        End;
+        If (NumOfMatches < 1) Then
+        Begin
+            FindStrInUserLetters := False;
+            Break;
+        End
+        Else
+            FindStrInUserLetters := True;
+    End;
+End;
+
+Function CalculatePoints(LastAnswerStr, AnswerStr: String;
+    IsCorrectAnswer: Boolean): Integer;
+Begin
+    If IsCorrectAnswer Then
+    Begin
+        If (LastAnswerStr[Length(LastAnswerStr)] = AnswerStr[1]) Then
+            CalculatePoints := 2 * Length(AnswerStr)
+        Else
+            CalculatePoints := Length(AnswerStr);
+    End
+    Else
+        CalculatePoints := -Length(AnswerStr);
+End;
+
 Procedure Bonus_1_50(Var PlayersLetters: TArrayStr; Var PlayersRes: TArrayInt);
 
 Var
@@ -94,7 +133,7 @@ Begin
             PlayersLetters[ActivePlayer][I] := 'A';
     End;
     WriteLn('Changed letters: ', PlayersLetters[ActivePlayer]);
-    PlayersRes[ActivePlayer] := PlayersRes[ActivePlayer] div 2;
+    PlayersRes[ActivePlayer] := PlayersRes[ActivePlayer] Div 2;
 End;
 
 Procedure Bonus_2_Swap(Var PlayersLetters: TArrayStr);
