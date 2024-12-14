@@ -63,6 +63,11 @@ Begin
         History[I] := ' ';
     End;
 
+    setLength(PlayersLetters, ColPlayers, COL_LETTERS_FOR_USER);
+    for I := Low(PlayersLetters) to High(PlayersLetters) do
+        for var J := Low(PlayersLetters) to High(PlayersLetters) do
+            PlayersLetters[I][J] := #0;
+
     If Language = RUS Then
     Begin
         ColOfAllLetters := COL_LETTERS_RU * 4;
@@ -112,7 +117,7 @@ Begin
 
         Result := -1;
     Finally
-        Words.Free;     // Русский пр
+        Words.Free; // Русский пр
     End;
 End;
 
@@ -168,16 +173,15 @@ Begin
 
 End;
 
-Function PlayersWithMaxPointsFound(MaxPoints: Integer): Integer;
+Function PlayersWithMaxPointsFound(): Integer;
 Var
-    I: Integer;
-    { IndexesOfWinners: Array Of Boolean; }
+    I, MaxPoints: Integer;
 Begin
+    MaxPoints := WinnerFound;
+    Writeln('Winners: ');
     For I := 0 To High(PlayersRes) Do
         If PlayersRes[I] = MaxPoints Then
-            { IndexesOfWinners[I] := True; }
-            Writeln(I);
-
+            Writeln(#9, PlayerNames[I], ' with ', MaxPoints, ' points.');
 End;
 
 Function CheckIntForLimit(Const Value, MinLimit, MaxLimit: Integer): Boolean;
@@ -332,28 +336,43 @@ Begin
     IsGameOn := True;
     While IsGameOn Do
     Begin
+        GivePlayersTheirLetters(ActivePlayer);
+
         Writeln('Player #', ActivePlayer + 1, ' (',
             PlayerNames[ActivePlayer], '): ');
 
         // function to find num of letters for use
         ReadlnStrWithChecking(RequestStr, 10);
 
-        Var PrevPlayer := ActivePlayer - 1;
-        If PrevPlayer = -1 Then
-            PrevPlayer := High(PlayerNames);
+        If RequestStr = '50/50' Then
+            //
+        Else
+            If RequestStr = '1/50' Then
+                //
+            Else
+            Begin
+                Var
+                PrevPlayer := ActivePlayer - 1;
+                If PrevPlayer = -1 Then
+                    PrevPlayer := High(PlayerNames);
 
-        Var CurrentPlayerResult := CalculatePoints(History[PrevPlayer], RequestStr);
-        Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
-        History[ActivePlayer] := RequestStr;
+                Var
+                CurrentPlayerResult := CalculatePoints(History[PrevPlayer],
+                    RequestStr);
+                Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
+                History[ActivePlayer] := RequestStr;
 
-        ActivePlayer := (ActivePlayer + 1) Mod ColPlayers;
+                ActivePlayer := (ActivePlayer + 1) Mod ColPlayers;
 
-        IsGameOn := False;
-        For Var I := 0 To High(History) Do
-            IsGameOn := (IsGameOn) Or (History[I] <> '');
+                IsGameOn := False;
+                For Var I := 0 To High(History) Do
+                    IsGameOn := (IsGameOn) Or (History[I] <> '');
+            End;
     End;
 
-    Writeln('Game over.');
+    Writeln('Game over.', #13#10);
+    PlayersWithMaxPointsFound();
+
     Readln;
 
 End.
