@@ -23,10 +23,8 @@ Const
     RUS_A = 128;
     ENG_A = 65;
     COL_USER_LETTERS = 10;
-    MESSAGES: Array [TMessages] Of String = (
-      'String is so long. Repeat: ',
-      'Fail number limit. Repeat: ',
-      'Fail data. Repeat: ');
+    MESSAGES: Array [TMessages] Of String = ('String is so long. Repeat: ',
+        'Fail number limit. Repeat: ', 'Fail data. Repeat: ');
 
 Var
     Language: TLang;
@@ -102,22 +100,21 @@ Begin
 
             If CompareResult = 0 Then
             Begin
-                Result := Mid; // �������
+                Result := Mid;
                 Exit;
             End
-            Else If CompareResult < 0 Then
-                Right := Mid - 1
             Else
-                Left := Mid + 1;
+                If CompareResult < 0 Then
+                    Right := Mid - 1
+                Else
+                    Left := Mid + 1;
         End;
 
-        // ���� ������ �� �������, ���������� -1
         Result := -1;
     Finally
-        Words.Free;
+        Words.Free;     // Русский
     End;
 End;
-
 
 Function FindStrInUserLetters(AnswerStr: String; MatrixOfUserLetters: TMatrix;
     ActiveUser: Integer): Boolean;
@@ -142,8 +139,9 @@ Begin
     End;
 End;
 
-Function CalculatePoints(LastAnswerStr, AnswerStr: String;
-    IsCorrectAnswer: Boolean): Integer;
+Function CalculatePoints(LastAnswerStr, AnswerStr: String): Integer;
+Var
+    IsCorrectAnswer: Boolean;
 Begin
     If IsCorrectAnswer Then
     Begin
@@ -154,7 +152,7 @@ Begin
     End
     Else
         CalculatePoints := -Length(AnswerStr);
-end;
+End;
 
 Function WinnerFound(): Integer;
 Var
@@ -184,7 +182,7 @@ End;
 
 Function CheckIntForLimit(Const Value, MinLimit, MaxLimit: Integer): Boolean;
 Begin
-    Result := (Value >= MinLimit) and (Value <= MaxLimit);
+    Result := (Value >= MinLimit) And (Value <= MaxLimit);
 End;
 
 Procedure GivePlayersTheirLetters(Const IndexPlayer: Integer);
@@ -206,21 +204,22 @@ Begin
     End;
 End;
 
-Function CheckStrForLimit(const PlayersWord: String; const len: integer): Boolean;
+Function CheckStrForLimit(Const PlayersWord: String;
+    Const Len: Integer): Boolean;
 Begin
-    Result := Length(PlayersWord) <= len;
+    Result := Length(PlayersWord) <= Len;
 End;
 
-Procedure ReadlnStrWithChecking(Var PlayersWord: String; const len: integer);
+Procedure ReadlnStrWithChecking(Var PlayersWord: String; Const Len: Integer);
 Var
     IsOk: Boolean;
 Begin
     Repeat
         Readln(PlayersWord);
-        IsOk := CheckStrForLimit(PlayersWord, len);
+        IsOk := CheckStrForLimit(PlayersWord, Len);
 
-        if not(isOk) then
-            write(MESSAGES[MFailStrLen]);
+        If Not(IsOk) Then
+            Write(MESSAGES[MFailStrLen]);
     Until IsOk;
 
 End;
@@ -240,8 +239,8 @@ Begin
         End;
         If IsOk Then
             IsOk := CheckIntForLimit(Value, MinLimit, MaxLimit);
-        If not isOk then
-          write(MESSAGES[MFailIntRage]);
+        If Not IsOk Then
+            Write(MESSAGES[MFailIntRage]);
     Until IsOk;
 End;
 
@@ -311,8 +310,8 @@ Begin
     Writeln('~~~ ERUDIT GAME ~~~');
     Writeln('Rules of game');
 
-    Write('Choose language:', #13#10, #9, '1-RUSSIAN', #13#10, #9,
-        '2-ENGLISH', #13#10, ' -> ');
+    Write('Choose language:', #13#10, #9, '1-RUSSIAN', #13#10, #9, '2-ENGLISH',
+        #13#10, ' -> ');
     ReadlnIntWithChecking(LangNum, 1, 2);
 
     Write('Write count of players (from 2 to 5): ');
@@ -336,10 +335,15 @@ Begin
         Writeln('Player #', ActivePlayer + 1, ' (',
             PlayerNames[ActivePlayer], '): ');
 
-        //function to find num of letters for use
+        // function to find num of letters for use
         ReadlnStrWithChecking(RequestStr, 10);
 
-        Inc(PlayersRes[ActivePlayer], 0);
+        Var PrevPlayer := ActivePlayer - 1;
+        If PrevPlayer = -1 Then
+            PrevPlayer := High(PlayerNames);
+
+        Var CurrentPlayerResult := CalculatePoints(History[PrevPlayer], RequestStr);
+        Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
         History[ActivePlayer] := RequestStr;
 
         ActivePlayer := (ActivePlayer + 1) Mod ColPlayers;
