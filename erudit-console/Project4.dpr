@@ -112,7 +112,7 @@ Begin
 
         Result := -1;
     Finally
-        Words.Free;     // Русский
+        Words.Free;     // Русский пр
     End;
 End;
 
