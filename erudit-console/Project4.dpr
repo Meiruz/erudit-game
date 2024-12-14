@@ -32,7 +32,7 @@ Var
     PlayersBonus2: TArrayBool;
     ActivePlayer: Integer;
     ValueA: Integer;
-    History: TArrayInt;
+    History: TArrayStr;
 
 Procedure Preparation(Const Lang: TLang; Const UserNames: TArrayStr);
 Var
@@ -54,7 +54,7 @@ Begin
         PlayersBonus1[I] := True;
         PlayersBonus2[I] := True;
         PlayersRes[I] := 0;
-        History[I] := -1;
+        History[I] := ' ';
     End;
 
     If Language = RUS Then
@@ -209,11 +209,11 @@ Begin
         Readln(RequestStr);
 
         Inc(PlayersRes[ActivePlayer], 0);
-        History[ActivePlayer] := PlayersRes[ActivePlayer];
+        History[ActivePlayer] := RequestStr;
 
         IsGameOn := False;
         For Var I := 0 To High(History) Do
-            IsGameOn := (IsGameOn) Or (History[I] <> 0);
+            IsGameOn := (IsGameOn) Or (History[I] <> '');
     End;
 
     Writeln('Game over.');
