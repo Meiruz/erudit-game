@@ -1,15 +1,16 @@
-Program Project1;
+﻿Program Project1;
 
 {$APPTYPE CONSOLE}
 
 Uses
-    System.SysUtils;
+    System.SysUtils, Classes;
 
 Type
     TLang = (RUS, ENG);
     TArrayInt = Array Of Integer;
     TArrayStr = Array Of String;
     TArrayBool = Array Of Boolean;
+    TMatrix = Array Of Array Of String;
     TMatrixChar = Array Of Array Of Char;
     TMessages = (MFailStrLen, MFailIntRage, MFailInt);
 
@@ -21,6 +22,7 @@ Const
     COL_PLAYERS_MAX = 5;
     RUS_A = 128;
     ENG_A = 65;
+    COL_USER_LETTERS = 10;
     MESSAGES: Array [TMessages] Of String = (
       'String is so long. Repeat: ',
       'Fail number limit. Repeat: ',
@@ -38,7 +40,7 @@ Var
     PlayersBonus2: TArrayBool;
     ActivePlayer: Integer;
     ValueA: Integer;
-    History: TArrayInt;
+    History: TArrayStr;
 
 Procedure Preparation(Const Lang: TLang; Const UserNames: TArrayStr);
 Var
@@ -60,7 +62,7 @@ Begin
         PlayersBonus1[I] := True;
         PlayersBonus2[I] := True;
         PlayersRes[I] := 0;
-        History[I] := -1;
+        History[I] := ' ';
     End;
 
     If Language = RUS Then
@@ -80,6 +82,79 @@ Begin
         LettersBank[I] := 4;
 
 End;
+
+Function BinarySearch(Const AnswerStr: String; Const FileName: String): Integer;
+Var
+    Words: TStringList;
+    Left, Right, Mid, CompareResult: Integer;
+Begin
+    Words := TStringList.Create;
+    Try
+        Words.LoadFromFile(FileName);
+
+        Left := 0;
+        Right := Words.Count - 1;
+
+        While Left <= Right Do
+        Begin
+            Mid := (Left + Right) Div 2;
+            CompareResult := CompareStr(AnswerStr, Words[Mid]);
+
+            If CompareResult = 0 Then
+            Begin
+                Result := Mid; // �������
+                Exit;
+            End
+            Else If CompareResult < 0 Then
+                Right := Mid - 1
+            Else
+                Left := Mid + 1;
+        End;
+
+        // ���� ������ �� �������, ���������� -1
+        Result := -1;
+    Finally
+        Words.Free;
+    End;
+End;
+
+
+Function FindStrInUserLetters(AnswerStr: String; MatrixOfUserLetters: TMatrix;
+    ActiveUser: Integer): Boolean;
+Var
+    I, J, NumOfMatches: Integer;
+Begin
+    For I := 1 To Length(AnswerStr) Do
+    Begin
+        NumOfMatches := 0;
+        For J := 1 To COL_USER_LETTERS Do
+        Begin
+            If AnswerStr[I] = MatrixOfUserLetters[ActiveUser][J] Then
+                Inc(NumOfMatches);
+        End;
+        If (NumOfMatches < 1) Then
+        Begin
+            FindStrInUserLetters := False;
+            Break;
+        End
+        Else
+            FindStrInUserLetters := True;
+    End;
+End;
+
+Function CalculatePoints(LastAnswerStr, AnswerStr: String;
+    IsCorrectAnswer: Boolean): Integer;
+Begin
+    If IsCorrectAnswer Then
+    Begin
+        If (LastAnswerStr[Length(LastAnswerStr)] = AnswerStr[1]) Then
+            CalculatePoints := 2 * Length(AnswerStr)
+        Else
+            CalculatePoints := Length(AnswerStr);
+    End
+    Else
+        CalculatePoints := -Length(AnswerStr);
+end;
 
 Function WinnerFound(): Integer;
 Var
@@ -168,7 +243,6 @@ Begin
         If not isOk then
           write(MESSAGES[MFailIntRage]);
     Until IsOk;
-
 End;
 
 Procedure Bonus_1_50(Var PlayersLetters: TArrayStr; Var PlayersRes: TArrayInt);
@@ -266,13 +340,13 @@ Begin
         ReadlnStrWithChecking(RequestStr, 10);
 
         Inc(PlayersRes[ActivePlayer], 0);
-        History[ActivePlayer] := PlayersRes[ActivePlayer];
+        History[ActivePlayer] := RequestStr;
 
         ActivePlayer := (ActivePlayer + 1) Mod ColPlayers;
 
         IsGameOn := False;
         For Var I := 0 To High(History) Do
-            IsGameOn := (IsGameOn) Or (History[I] <> 0);
+            IsGameOn := (IsGameOn) Or (History[I] <> '');
     End;
 
     Writeln('Game over.');
