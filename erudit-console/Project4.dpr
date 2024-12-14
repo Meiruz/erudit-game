@@ -3,7 +3,7 @@ Program Project1;
 {$APPTYPE CONSOLE}
 
 Uses
-    System.SysUtils;
+    System.SysUtils, Classes;
 
 Type
     TLang = (RUS, ENG);
@@ -74,6 +74,42 @@ Begin
         LettersBank[I] := 4;
 
 End;
+
+Function BinarySearch(Const AnswerStr: String; Const FileName: String): Integer;
+Var
+    Words: TStringList;
+    Left, Right, Mid, CompareResult: Integer;
+Begin
+    Words := TStringList.Create;
+    Try
+        Words.LoadFromFile(FileName);
+
+        Left := 0;
+        Right := Words.Count - 1;
+
+        While Left <= Right Do
+        Begin
+            Mid := (Left + Right) Div 2;
+            CompareResult := CompareStr(AnswerStr, Words[Mid]);
+
+            If CompareResult = 0 Then
+            Begin
+                Result := Mid; // Найдено
+                Exit;
+            End
+            Else If CompareResult < 0 Then
+                Right := Mid - 1
+            Else
+                Left := Mid + 1;
+        End;
+
+        // Если строка не найдена, возвращаем -1
+        Result := -1;
+    Finally
+        Words.Free;
+    End;
+End;
+
 
 Function FindStrInUserLetters(AnswerStr: String; MatrixOfUserLetters: TMatrix;
     ActiveUser: Integer): Boolean;
