@@ -211,6 +211,21 @@ Begin
             Writeln(#9, PlayerNames[I], ' with ', MaxPoints, ' points.');
 End;
 
+procedure deleteUsedLetters(const str: ansistring);
+begin
+    for var I := Low(str) to High(str) do
+    begin
+        var j := 1;
+        while j <= length(PlayersLetters[ActivePlayer]) do
+        begin
+            if str[i] = PlayersLetters[ActivePlayer][j] then
+                delete(PlayersLetters[ActivePlayer], j, 1)
+            else
+                inc(j);
+        end;
+    end;
+end;
+
 Procedure FormatString(var str: AnsiString);
 var
     countOfletters : integer;
@@ -314,7 +329,6 @@ Begin
         CalculatePoints := -Length(AnswerStr);
 End;
 
-
 procedure outLettersOfPlayer(const indexOfPlayer: integer);
 begin
     writeLn('Letters of player #', indexOfPlayer + 1);
@@ -400,7 +414,7 @@ Var
 
 Begin
     Writeln('~~~ ERUDIT GAME ~~~');
-    Writeln('Rules of game');
+    Writeln(#13#10, 'To use bonus you should write 50/50 or help (помощь на русском).', #13#10);
 
     Write('Choose language:', #13#10, #9, '1-RUSSIAN', #13#10, #9, '2-ENGLISH',
         #13#10, ' -> ');
@@ -457,6 +471,8 @@ Begin
 
                     if currentPlayerResult > 0 then
                         PrevStr := RequestStr;
+
+                    deleteUsedLetters(RequestStr);
                 end;
 
                 History[ActivePlayer] := CurrentPlayerResult;
