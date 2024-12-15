@@ -32,6 +32,7 @@ Var
     ColOfAllLetters: Integer;
     PlayerNames: TArrayStr;
     LettersBank: TArrayInt;
+
     PlayersLetters: TMatrixChar;
     PlayersRes: TArrayInt;
     PlayersBonus1: TArrayBool;
@@ -39,6 +40,41 @@ Var
     ActivePlayer: Integer;
     ValueA: Integer;
     History: TArrayStr;
+
+Function GetRandomLetter(): Integer;
+Var
+    I, K: Integer;
+    QuantityOfLetters: Integer;
+    IsFound: Boolean;
+Begin
+    QuantityOfLetters := 0;
+    IsFound := False;
+
+    For I := 0 To High(LettersBank) Do
+    Begin
+        QuantityOfLetters := QuantityOfLetters + LettersBank[I];
+    End;
+
+    If QuantityOfLetters > 0 Then
+    Begin
+        While Not IsFound Do
+        Begin
+            K := Random(Length(LettersBank));
+            If LettersBank[K] > 0 Then
+            Begin
+                GetRandomLetter := K;
+                LettersBank[K] := LettersBank[K] - 1;
+                Exit;
+            End;
+        End
+    End
+    Else
+    Begin
+        GetRandomLetter := -1;
+        Exit;
+    End;
+//    ColOfAllLetters := QuantityOfLetters;  // сами думайте, надо ли вам эта хуйня
+End;
 
 Procedure Preparation(Const Lang: TLang; Const UserNames: TArrayStr);
 Var
