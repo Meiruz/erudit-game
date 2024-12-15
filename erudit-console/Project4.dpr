@@ -137,11 +137,33 @@ Begin
                     Left := Mid + 1;
         End;
 
-        Result := -1;
+        Result := -(Left + 1);
     Finally
         Words.Free;
     End;
 End;
+
+procedure AddStringInOrder(const NewStr: string; const ind: integer);
+var
+  StringList: TStringList;
+  InsertIndex: Integer;
+begin
+    writeln(ind);
+  StringList := TStringList.Create;
+  try
+    if FileExists(DICTIONARY_FILE[language]) then
+      StringList.LoadFromFile(DICTIONARY_FILE[language], TEncoding.ANSI)
+    else
+      StringList.Clear;
+
+    InsertIndex := ind;
+    StringList.Insert(InsertIndex, NewStr);
+
+    StringList.SaveToFile(DICTIONARY_FILE[language], TEncoding.ANSI);
+  finally
+    StringList.Free;
+  end;
+end;
 
 Function FindStrInUserLetters(AnswerStr: AnsiString): Boolean;
 Var
@@ -162,26 +184,6 @@ Begin
                 Exit();
             end;
     End;
-End;
-
-Function CalculatePoints(LastAnswerStr, AnswerStr: AnsiString): Integer;
-Begin
-    if BinarySearch(AnswerStr) = -1 then
-    begin
-        Writeln('No word in dictionary');
-        CalculatePoints := -Length(AnswerStr);
-        exit();
-    end;
-
-    If FindStrInUserLetters(AnswerStr) Then
-    begin
-        If (LastAnswerStr[Length(LastAnswerStr)] = AnswerStr[1]) Then
-            CalculatePoints := 2 * Length(AnswerStr)
-        Else
-            CalculatePoints := Length(AnswerStr);
-    End
-    Else
-        CalculatePoints := -Length(AnswerStr);
 End;
 
 Function WinnerFound(): Integer;
@@ -280,6 +282,38 @@ Begin
             Write(MESSAGES[MFailIntRage]);
     Until IsOk;
 End;
+
+Function CalculatePoints(LastAnswerStr, AnswerStr: AnsiString): Integer;
+var
+    pos, toSave: integer;
+Begin
+    pos := BinarySearch(AnswerStr);
+    if pos < 0 then
+    begin
+        Writeln('No word in dictionary');
+
+        write('Do you wonna add this word to dictionary?', #13#10, #9, '1 - Yes', #13#10, #9, '2 - No', #13#10, '-> ');
+        ReadlnIntWithChecking(toSave, 1, 2);
+        if toSave = 1 then
+            AddStringInOrder(AnswerStr, -(pos + 1))
+        else
+        begin
+            CalculatePoints := -Length(AnswerStr);
+            exit();
+        end;
+    end;
+
+    If FindStrInUserLetters(AnswerStr) Then
+    begin
+        If (LastAnswerStr[Length(LastAnswerStr)] = AnswerStr[1]) Then
+            CalculatePoints := 2 * Length(AnswerStr)
+        Else
+            CalculatePoints := Length(AnswerStr);
+    End
+    Else
+        CalculatePoints := -Length(AnswerStr);
+End;
+
 
 procedure outLettersOfPlayer(const indexOfPlayer: integer);
 begin
@@ -403,10 +437,8 @@ Begin
 
         Write(#13#10, '-> ');
 
-        // function to find num of letters for use
-        ReadlnStrWithChecking(RequestStr, 10);
+        ReadlnStrWithChecking(RequestStr, length(playersLetters[activePlayer]));
         FormatString(RequestStr);
-        writeln(RequestStr);
 
         If RequestStr = '50/50' Then
             Bonus_1_50()
