@@ -10,7 +10,7 @@ Type
     TArrayInt = Array Of Integer;
     TArrayStr = Array Of AnsiString;
     TArrayBool = Array Of Boolean;
-    TMatrixChar = Array Of Array Of AnsiChar;
+    TMatrixChar = Array Of Array Of AnsiCHar;
     TMessages = (MFailStrLen, MFailIntRage, MFailInt);
 
 Const
@@ -40,23 +40,22 @@ Var
     ValueA: Integer;
     History: TArrayInt;
 
-Function GetRandomLetter(): Integer;
+Function GetRandomLetter(): Ansichar;
 Var
     I, K: Integer;
 Begin
-    If ColOfAllLetters > 0 Then
-        While true Do
+    Randomize;
+    While true Do
+    Begin
+        K := Random(Length(LettersBank));
+        If LettersBank[K] > 0 Then
         Begin
-            K := Random(Length(LettersBank));
-            If LettersBank[K] > 0 Then
-            Begin
-                GetRandomLetter := K;
-                Exit;
-            End;
+            GetRandomLetter := Ansichar(K + ValueA);
+            dec(ColOfAllLetters);
+            dec(LettersBank[K]);
+            Exit;
         End;
-
-    GetRandomLetter := -1;
-    Exit;
+    End;
 End;
 
 Procedure Preparation(Const Lang: TLang; Const UserNames: TArrayStr);
@@ -82,11 +81,6 @@ Begin
         History[I] := -1;
     End;
 
-    setLength(PlayersLetters, ColPlayers, COL_LETTERS_FOR_USER);
-    for I := Low(PlayersLetters) to High(PlayersLetters) do
-        for var J := Low(PlayersLetters) to High(PlayersLetters) do
-            PlayersLetters[I][J] := #0;
-
     If Language = RUS Then
     Begin
         ColOfAllLetters := COL_LETTERS_RU * 4;
@@ -103,6 +97,10 @@ Begin
     For I := 0 To High(LettersBank) Do
         LettersBank[I] := 4;
 
+    setLength(PlayersLetters, ColPlayers, COL_LETTERS_FOR_USER);
+    for I := Low(PlayersLetters) to High(PlayersLetters) do
+        for var J := Low(PlayersLetters) to High(PlayersLetters) do
+            PlayersLetters[I][j] := GetRandomLetter();
 End;
 
 Function BinarySearch(Const AnswerStr: AnsiString): Integer;
@@ -137,7 +135,7 @@ Begin
 
         Result := -1;
     Finally
-        Words.Free; // Русский пр
+        Words.Free;
     End;
 End;
 
@@ -242,12 +240,7 @@ Begin
     While (Ind < COL_LETTERS_FOR_USER) And (ColOfAllLetters > 0) Do
     Begin
         If PlayersLetters[IndexPlayer][Ind] = #0 Then
-        Begin
-            Pos := GetRandomLetter();
-            PlayersLetters[IndexPlayer][Ind] := AnsiChar(ValueA + Pos);
-            Dec(ColOfAllLetters);
-            Dec(LettersBank[Pos]);
-        End;
+            PlayersLetters[IndexPlayer][Ind] := GetRandomLetter();
 
         Inc(Ind);
     End;
@@ -293,59 +286,55 @@ Begin
     Until IsOk;
 End;
 
-Procedure Bonus_1_50(Var PlayersLetters: TArrayStr; Var PlayersRes: TArrayInt);
+procedure outLettersOfPlayer(const indexOfPlayer: integer);
+begin
+    writeLn('Letters of player #', indexOfPlayer);
+    for var i := 0 to High(PlayersLetters[indexOfPlayer]) do
+        write(PlayersLetters[indexOfPlayer][i], ' ' );
+    writeln;
+end;
 
+Procedure Bonus_1_50();
 Var
     I, J: Integer;
-    ReplaceLetters: AnsiString;
-
+    IndexReplaceLetters: Integer;
 Begin
-    WriteLn('Enter the letters you want to replace.');
-    ReadLn(ReplaceLetters);
-    For I := 1 To Length(PlayersLetters[ActivePlayer]) Do
-    Begin
-        For J := 1 To Length(ReplaceLetters) Do
-            If PlayersLetters[ActivePlayer][I] = ReplaceLetters[J] Then
-            Begin
-                PlayersLetters[ActivePlayer][I] := '0';
-                Break;
-            End;
-        If PlayersLetters[ActivePlayer][I] = '0' Then
-            PlayersLetters[ActivePlayer][I] := 'A';
-    End;
-    WriteLn('Changed letters: ', PlayersLetters[ActivePlayer]);
-    PlayersRes[ActivePlayer] := PlayersRes[ActivePlayer] Div 2;
+    if colOfAllLetters > 4 then
+    begin
+        outLettersOfPlayer(ActivePlayer);
+
+        for I := 1 to 5 do
+        begin
+            Write('#', i, ' Enter the index of letters you want to replace: ');
+            ReadlnIntWithChecking(IndexReplaceLetters, 1, 10);
+            PlayersLetters[ActivePlayer][IndexReplaceLetters-1] := GetRandomLetter();
+
+            outLettersOfPlayer(ActivePlayer);
+        end;
+
+        PlayersRes[ActivePlayer] := PlayersRes[ActivePlayer] - 2;
+    end
+    else
+    begin
+        writeln('There are no letters in bank.');
+    end;
 End;
 
-Procedure Bonus_2_Swap(Var PlayersLetters: TArrayStr);
-
+Procedure Bonus_2_Swap();
 Var
-    Char1, Char2, Temp: AnsiChar;
+    Char1, Char2, Temp: Integer;
     I, J, OtherPlayer: Integer;
-
 Begin
-    Temp := #0;
-    WriteLn('Specify the letter you want to replace.');
-    ReadLn(Char1);
+    Write('Enter the index of your letter you want to replace: ');
+    ReadlnIntWithChecking(Char1, 1, 10);
     WriteLn('Enter your opponent`s number.');
     ReadLn(OtherPlayer);
-    WriteLn('The letters of the opponent: ', PlayersLetters[OtherPlayer]);
+    WriteLn('The letters of the opponent: ', String(PlayersLetters[OtherPlayer]));
     WriteLn('Specify the letter of the opponent you want to replace.');
     ReadLn(Char2);
-    For I := 1 To Length(PlayersLetters[ActivePlayer]) Do
-        If PlayersLetters[ActivePlayer][I] = Char1 Then
-        Begin
-            Temp := PlayersLetters[ActivePlayer][I];
-            Break;
-        End;
-    For I := 1 To Length(PlayersLetters[ActivePlayer]) Do
-        If PlayersLetters[OtherPlayer][I] = Char2 Then
-        Begin
-            PlayersLetters[ActivePlayer][I] := PlayersLetters[OtherPlayer][I];
-            PlayersLetters[OtherPlayer][I] := Temp;
-            Break;
-        End;
-    WriteLn('Changed letters: ', PlayersLetters[ActivePlayer]);
+
+
+    WriteLn('Changed letters: ', String(PlayersLetters[ActivePlayer]));
 End;
 
 Var
@@ -355,7 +344,6 @@ Var
     RequestStr, PrevStr: AnsiString;
 
 Begin
-
     Writeln('~~~ ERUDIT GAME ~~~');
     Writeln('Rules of game');
 
@@ -397,12 +385,13 @@ Begin
         // function to find num of letters for use
         ReadlnStrWithChecking(RequestStr, 10);
         FormatString(RequestStr);
+        writeln(RequestStr);
 
         If RequestStr = '50/50' Then
-            //
+            Bonus_1_50()
         Else
             If RequestStr = 'HELP' Then
-                //
+                Bonus_2_Swap()
             Else
             Begin
                 Var CurrentPlayerResult := 0;
@@ -412,7 +401,9 @@ Begin
                     CurrentPlayerResult := CalculatePoints(PrevStr,
                         RequestStr);
                     Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
-                    PrevStr := RequestStr;
+
+                    if currentPlayerResult > 0 then
+                        PrevStr := RequestStr;
                 end;
 
                 History[ActivePlayer] := CurrentPlayerResult;
