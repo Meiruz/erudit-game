@@ -11,7 +11,7 @@ Type
     TArrayStr = Array Of String;
     TArrayBool = Array Of Boolean;
     TMatrix = Array Of Array Of String;
-    TMatrixChar = Array Of Array Of Char;
+    TMatrixChar = Array Of Array Of AnsiChar;
     TMessages = (MFailStrLen, MFailIntRage, MFailInt);
 
 Const
@@ -20,7 +20,7 @@ Const
     COL_LETTERS_EN = 26;
     COL_PLAYERS_MIN = 2;
     COL_PLAYERS_MAX = 5;
-    RUS_A = 128;
+    RUS_A = 192;
     ENG_A = 65;
     COL_USER_LETTERS = 10;
     MESSAGES: Array [TMessages] Of String = ('String is so long. Repeat: ',
@@ -39,7 +39,7 @@ Var
     PlayersBonus2: TArrayBool;
     ActivePlayer: Integer;
     ValueA: Integer;
-    History: TArrayStr;
+    History: TArrayInt;
 
 Function GetRandomLetter(): Integer;
 Var
@@ -96,7 +96,7 @@ Begin
         PlayersBonus1[I] := True;
         PlayersBonus2[I] := True;
         PlayersRes[I] := 0;
-        History[I] := ' ';
+        History[I] := 0;
     End;
 
     setLength(PlayersLetters, ColPlayers, COL_LETTERS_FOR_USER);
@@ -157,34 +157,30 @@ Begin
     End;
 End;
 
-Function FindStrInUserLetters(AnswerStr: String; MatrixOfUserLetters: TMatrix;
-    ActiveUser: Integer): Boolean;
+Function FindStrInUserLetters(AnswerStr: AnsiString): Boolean;
 Var
-    I, J, NumOfMatches: Integer;
+    I, J: Integer;
+    isIn: Boolean;
 Begin
+    FindStrInUserLetters := true;
     For I := 1 To Length(AnswerStr) Do
     Begin
-        NumOfMatches := 0;
-        For J := 1 To COL_USER_LETTERS Do
-        Begin
-            If AnswerStr[I] = MatrixOfUserLetters[ActiveUser][J] Then
-                Inc(NumOfMatches);
-        End;
-        If (NumOfMatches < 1) Then
-        Begin
-            FindStrInUserLetters := False;
-            Break;
-        End
-        Else
-            FindStrInUserLetters := True;
+        isIn := false;
+        For J := LOw(PlayersLetters[ActivePlayer]) To HIGH(PlayersLetters[ActivePlayer]) Do
+            If AnswerStr[I] = PlayersLetters[ActivePlayer][J] Then
+                isIn := true;
+
+        if not isIn then
+            begin
+                FindStrInUserLetters := False;
+                Exit();
+            end;
     End;
 End;
 
 Function CalculatePoints(LastAnswerStr, AnswerStr: String): Integer;
-Var
-    IsCorrectAnswer: Boolean;
 Begin
-    If IsCorrectAnswer Then
+    If FindStrInUserLetters(AnswerStr) Then
     Begin
         If (LastAnswerStr[Length(LastAnswerStr)] = AnswerStr[1]) Then
             CalculatePoints := 2 * Length(AnswerStr)
@@ -234,8 +230,8 @@ Begin
     Begin
         If PlayersLetters[IndexPlayer][Ind] = #0 Then
         Begin
-            Pos := 0;
-            PlayersLetters[IndexPlayer][Ind] := Chr(ValueA + Pos);
+            Pos := GetRandomLetter();
+            PlayersLetters[IndexPlayer][Ind] := AnsiChar(ValueA + Pos);
             Dec(ColOfAllLetters);
             Dec(LettersBank[Pos]);
         End;
@@ -343,7 +339,7 @@ Var
     LangNum, UsersNum: Integer;
     UserNames: TArrayStr;
     IsGameOn: Boolean;
-    RequestStr: String;
+    RequestStr, PrevStr: String;
 
 Begin
 
@@ -370,12 +366,16 @@ Begin
         Preparation(ENG, UserNames);
 
     IsGameOn := True;
+    PrevStr := ' ';
     While IsGameOn Do
     Begin
         GivePlayersTheirLetters(ActivePlayer);
 
         Writeln('Player #', ActivePlayer + 1, ' (',
-            PlayerNames[ActivePlayer], '): ');
+            PlayerNames[ActivePlayer], '): ', #13#10, 'Letters: ');
+        for var I := Low(PlayersLetters[ActivePlayer]) to High(PlayersLetters[ActivePlayer]) do
+            Write(PlayersLetters[ActivePlayer][I], ' ');
+        Write(#13#10, ' -> ');
 
         // function to find num of letters for use
         ReadlnStrWithChecking(RequestStr, 10);
@@ -383,26 +383,28 @@ Begin
         If RequestStr = '50/50' Then
             //
         Else
-            If RequestStr = '1/50' Then
+            If RequestStr = 'HELP' Then
                 //
             Else
             Begin
-                Var
-                PrevPlayer := ActivePlayer - 1;
-                If PrevPlayer = -1 Then
-                    PrevPlayer := High(PlayerNames);
+                Var CurrentPlayerResult := 0;
 
-                Var
-                CurrentPlayerResult := CalculatePoints(History[PrevPlayer],
-                    RequestStr);
-                Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
-                History[ActivePlayer] := RequestStr;
+                if RequestStr <> '' then
+                begin
+                    CurrentPlayerResult := CalculatePoints(PrevStr,
+                        RequestStr);
+                    Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
+                end;
 
+                History[ActivePlayer] := CurrentPlayerResult;
+
+                // Next step
+                PrevStr := RequestStr;
                 ActivePlayer := (ActivePlayer + 1) Mod ColPlayers;
 
                 IsGameOn := False;
                 For Var I := 0 To High(History) Do
-                    IsGameOn := (IsGameOn) Or (History[I] <> '');
+                    IsGameOn := (IsGameOn) Or (History[I] <> 0);
             End;
     End;
 
