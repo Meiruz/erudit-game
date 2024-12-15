@@ -24,6 +24,7 @@ Const
     COL_USER_LETTERS = 10;
     MESSAGES: Array [TMessages] Of String = ('String is so long. Repeat: ',
         'Fail number limit. Repeat: ', 'Fail data. Repeat: ');
+    DICTIONARY_FILE: Array [TLang] Of String = ('russian.txt', 'english.txt');
 
 Var
     Language: TLang;
@@ -114,7 +115,7 @@ Var
 Begin
     Words := TStringList.Create;
     Try
-        Words.LoadFromFile('russian.txt');
+        Words.LoadFromFile(DICTIONARY_FILE[language]);
 
         Left := 0;
         Right := Words.Count - 1;
@@ -122,7 +123,7 @@ Begin
         While Left <= Right Do
         Begin
             Mid := (Left + Right) Div 2;
-            CompareResult := CompareStr(AnswerStr, ansistring(UTF8Decode(Words[mid])));
+            CompareResult := CompareStr(AnswerStr, ansistring(Words[mid]));
 
             If CompareResult = 0 Then
             Begin
