@@ -16,7 +16,11 @@ Type
 Const
     COL_LETTERS_FOR_USER = 10;
     COL_LETTERS_RU = 33;
+    COL_VOWELS_LETTERS_RU = 10;
+    VOWELS_RU: Set Of AnsiChar = ['a', 'о', 'у', 'е', 'ё', 'ы', 'э', 'я', 'и', 'ю'];
     COL_LETTERS_EN = 26;
+    COL_VOWELS_LETTERS_EN = 6;
+    VOWELS_EN: Set Of AnsiChar = ['e', 'y', 'u', 'i', 'o', 'a'];
     COL_PLAYERS_MIN = 2;
     COL_PLAYERS_MAX = 5;
     RUS_A = Ord('а');
@@ -84,19 +88,22 @@ Begin
 
     If Language = RUS Then
     Begin
-        ColOfAllLetters := COL_LETTERS_RU * 4;
+        ColOfAllLetters := COL_LETTERS_RU * 4 + COL_VOWELS_LETTERS_RU * 4;
         SetLength(LettersBank, COL_LETTERS_RU);
         ValueA := RUS_A;
     End
     Else
     Begin
-        ColOfAllLetters := COL_LETTERS_EN * 4;
+        ColOfAllLetters := COL_LETTERS_EN * 4 + COL_VOWELS_LETTERS_EN * 4;
         SetLength(LettersBank, COL_LETTERS_EN);
         ValueA := ENG_A;
     End;
 
     For I := 0 To High(LettersBank) Do
-        LettersBank[I] := 4;
+        If (Char(ValueA + I) in VOWELS_RU) Or (Char(ValueA + I) in VOWELS_EN) Then
+            LettersBank[I] := 8
+        Else
+            LettersBank[I] := 4;
 
     SetLength(PlayersLetters, ColPlayers);
     For I := Low(PlayersLetters) To High(PlayersLetters) Do
@@ -212,15 +219,21 @@ Begin
 End;
 
 Procedure DeleteUsedLetters(Const Str: Ansistring);
+Var
+    TempStr: Ansistring;
 Begin
-    For Var I := Low(Str) To High(Str) Do
+    TempStr := Str;
+    For Var I := Low(TempStr) To High(TempStr) Do
     Begin
         Var
         J := 1;
         While J <= Length(PlayersLetters[ActivePlayer]) Do
         Begin
-            If Str[I] = PlayersLetters[ActivePlayer][J] Then
-                Delete(PlayersLetters[ActivePlayer], J, 1)
+            If TempStr[I] = PlayersLetters[ActivePlayer][J] Then
+            Begin
+                Delete(PlayersLetters[ActivePlayer], J, 1);
+                TempStr[I] := ' ';
+            End
             Else
                 Inc(J);
         End;
@@ -331,7 +344,6 @@ Begin
     End
     Else
         CalculatePoints := -Length(AnswerStr);
-
 
 End;
 
@@ -483,11 +495,11 @@ Begin
                 Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
 
                 If CurrentPlayerResult > 0 Then
-                begin
+                Begin
                     PrevStr := RequestStr;
 
                     DeleteUsedLetters(RequestStr);
-                end;
+                End;
             End;
 
             History[ActivePlayer] := CurrentPlayerResult;
