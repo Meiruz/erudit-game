@@ -19,8 +19,8 @@ Const
     COL_LETTERS_EN = 26;
     COL_PLAYERS_MIN = 2;
     COL_PLAYERS_MAX = 5;
-    RUS_A = ord('а');
-    ENG_A = ord('a');
+    RUS_A = Ord('а');
+    ENG_A = Ord('a');
     COL_USER_LETTERS = 10;
     MESSAGES: Array [TMessages] Of String = ('String is so long. Repeat: ',
         'Fail number limit. Repeat: ', 'Fail data. Repeat: ');
@@ -46,14 +46,14 @@ Var
     I, K: Integer;
 Begin
     Randomize;
-    While true Do
+    While True Do
     Begin
-        K := Random(high(LettersBank));
+        K := Random(High(LettersBank));
         If LettersBank[K] > 0 Then
         Begin
             GetRandomLetter := Ansichar(K + ValueA);
-            dec(ColOfAllLetters);
-            dec(LettersBank[K]);
+            Dec(ColOfAllLetters);
+            Dec(LettersBank[K]);
             Exit;
         End;
     End;
@@ -98,13 +98,13 @@ Begin
     For I := 0 To High(LettersBank) Do
         LettersBank[I] := 4;
 
-    setLength(PlayersLetters, ColPlayers);
-    for I := Low(PlayersLetters) to High(PlayersLetters) do
-    begin
-        PlayersLetters[I]  := '';
-        for var J := 1 to COL_LETTERS_FOR_USER do
+    SetLength(PlayersLetters, ColPlayers);
+    For I := Low(PlayersLetters) To High(PlayersLetters) Do
+    Begin
+        PlayersLetters[I] := '';
+        For Var J := 1 To COL_LETTERS_FOR_USER Do
             PlayersLetters[I] := PlayersLetters[I] + GetRandomLetter();
-    end;
+    End;
 
 End;
 
@@ -115,7 +115,7 @@ Var
 Begin
     Words := TStringList.Create;
     Try
-        Words.LoadFromFile(DICTIONARY_FILE[language]);
+        Words.LoadFromFile(DICTIONARY_FILE[Language]);
 
         Left := 0;
         Right := Words.Count - 1;
@@ -123,18 +123,17 @@ Begin
         While Left <= Right Do
         Begin
             Mid := (Left + Right) Div 2;
-            CompareResult := CompareStr(AnswerStr, ansistring(Words[mid]));
+            CompareResult := CompareStr(AnswerStr, Ansistring(Words[Mid]));
 
             If CompareResult = 0 Then
             Begin
                 Result := Mid;
                 Exit;
             End
+            Else If CompareResult < 0 Then
+                Right := Mid - 1
             Else
-                If CompareResult < 0 Then
-                    Right := Mid - 1
-                Else
-                    Left := Mid + 1;
+                Left := Mid + 1;
         End;
 
         Result := -(Left + 1);
@@ -143,46 +142,47 @@ Begin
     End;
 End;
 
-procedure AddStringInOrder(const NewStr: string; const ind: integer);
-var
-  StringList: TStringList;
-  InsertIndex: Integer;
-begin
-    writeln(ind);
-  StringList := TStringList.Create;
-  try
-    if FileExists(DICTIONARY_FILE[language]) then
-      StringList.LoadFromFile(DICTIONARY_FILE[language], TEncoding.ANSI)
-    else
-      StringList.Clear;
+Procedure AddStringInOrder(Const NewStr: String; Const Ind: Integer);
+Var
+    StringList: TStringList;
+    InsertIndex: Integer;
+Begin
+    StringList := TStringList.Create;
+    Try
+        If FileExists(DICTIONARY_FILE[Language]) Then
+            StringList.LoadFromFile(DICTIONARY_FILE[Language], TEncoding.ANSI)
+        Else
+            StringList.Clear;
 
-    InsertIndex := ind;
-    StringList.Insert(InsertIndex, NewStr);
+        InsertIndex := Ind;
+        StringList.Insert(InsertIndex, NewStr);
 
-    StringList.SaveToFile(DICTIONARY_FILE[language], TEncoding.ANSI);
-  finally
-    StringList.Free;
-  end;
-end;
+        StringList.SaveToFile(DICTIONARY_FILE[Language], TEncoding.ANSI);
+    Finally
+        StringList.Free;
+    End;
+End;
 
 Function FindStrInUserLetters(AnswerStr: AnsiString): Boolean;
 Var
     I, J: Integer;
-    isIn: Boolean;
+    IsIn: Boolean;
 Begin
-    FindStrInUserLetters := true;
+    FindStrInUserLetters := True;
     For I := 1 To Length(AnswerStr) Do
     Begin
-        isIn := false;
-        For J := LOw(PlayersLetters[ActivePlayer]) To HIGH(PlayersLetters[ActivePlayer]) Do
+        IsIn := False;
+        For J := LOw(PlayersLetters[ActivePlayer])
+            To HIGH(PlayersLetters[ActivePlayer]) Do
             If AnswerStr[I] = PlayersLetters[ActivePlayer][J] Then
-                isIn := true;
+                IsIn := True;
 
-        if not isIn then
-            begin
-                FindStrInUserLetters := False;
-                Exit();
-            end;
+        If Not IsIn Then
+        Begin
+            FindStrInUserLetters := False;
+            Writeln('Incorrect letters in your word.');
+            Exit();
+        End;
     End;
 End;
 
@@ -211,35 +211,36 @@ Begin
             Writeln(#9, PlayerNames[I], ' with ', MaxPoints, ' points.');
 End;
 
-procedure deleteUsedLetters(const str: ansistring);
-begin
-    for var I := Low(str) to High(str) do
-    begin
-        var j := 1;
-        while j <= length(PlayersLetters[ActivePlayer]) do
-        begin
-            if str[i] = PlayersLetters[ActivePlayer][j] then
-                delete(PlayersLetters[ActivePlayer], j, 1)
-            else
-                inc(j);
-        end;
-    end;
-end;
+Procedure DeleteUsedLetters(Const Str: Ansistring);
+Begin
+    For Var I := Low(Str) To High(Str) Do
+    Begin
+        Var
+        J := 1;
+        While J <= Length(PlayersLetters[ActivePlayer]) Do
+        Begin
+            If Str[I] = PlayersLetters[ActivePlayer][J] Then
+                Delete(PlayersLetters[ActivePlayer], J, 1)
+            Else
+                Inc(J);
+        End;
+    End;
+End;
 
-Procedure FormatString(var str: AnsiString);
-var
-    countOfletters : integer;
-begin
-    while (str <> '') and (str[1] = ' ') do
-        delete(str, 1, 1);
+Procedure FormatString(Var Str: AnsiString);
+Var
+    CountOfletters: Integer;
+Begin
+    While (Str <> '') And (Str[1] = ' ') Do
+        Delete(Str, 1, 1);
 
-    while (str <> '') and (str[length(str)] = ' ') do
-        delete(str, length(str), 1);
+    While (Str <> '') And (Str[Length(Str)] = ' ') Do
+        Delete(Str, Length(Str), 1);
 
-    for var I := 1 to length(str) do
-        if (ord(str[I]) < ValueA) and (ord(str[i]) >= ord('A')) then
-            str[I] := ansichar(Ord(str[I]) + 32);
-end;
+    For Var I := 1 To Length(Str) Do
+        If (Ord(Str[I]) < ValueA) And (Ord(Str[I]) >= Ord('A')) Then
+            Str[I] := Ansichar(Ord(Str[I]) + 32);
+End;
 
 Function CheckIntForLimit(Const Value, MinLimit, MaxLimit: Integer): Boolean;
 Begin
@@ -250,10 +251,11 @@ Procedure GivePlayersTheirLetters(Const IndexPlayer: Integer);
 Var
     Ind, Pos: Integer;
 Begin
-    Ind := length(PlayersLetters[IndexPlayer]);
+    Ind := Length(PlayersLetters[IndexPlayer]);
     While (Ind < COL_LETTERS_FOR_USER) And (ColOfAllLetters > 0) Do
     Begin
-        PlayersLetters[IndexPlayer] := PlayersLetters[IndexPlayer] + GetRandomLetter();
+        PlayersLetters[IndexPlayer] := PlayersLetters[IndexPlayer] +
+            GetRandomLetter();
         Inc(Ind);
     End;
 End;
@@ -264,7 +266,8 @@ Begin
     Result := Length(PlayersWord) <= Len;
 End;
 
-Procedure ReadlnStrWithChecking(Var PlayersWord: AnsiString; Const Len: Integer);
+Procedure ReadlnStrWithChecking(Var PlayersWord: AnsiString;
+    Const Len: Integer);
 Var
     IsOk: Boolean;
 Begin
@@ -299,27 +302,28 @@ Begin
 End;
 
 Function CalculatePoints(LastAnswerStr, AnswerStr: AnsiString): Integer;
-var
-    pos, toSave: integer;
+Var
+    Pos, ToSave: Integer;
 Begin
-    pos := BinarySearch(AnswerStr);
-    if pos < 0 then
-    begin
-        Writeln('No word in dictionary');
-
-        write('Do you wonna add this word to dictionary?', #13#10, #9, '1 - Yes', #13#10, #9, '2 - No', #13#10, '-> ');
-        ReadlnIntWithChecking(toSave, 1, 2);
-        if toSave = 1 then
-            AddStringInOrder(AnswerStr, -(pos + 1))
-        else
-        begin
-            CalculatePoints := -Length(AnswerStr);
-            exit();
-        end;
-    end;
-
+    Pos := BinarySearch(AnswerStr);
     If FindStrInUserLetters(AnswerStr) Then
-    begin
+    Begin
+        If Pos < 0 Then
+        Begin
+            Writeln('No word in dictionary');
+
+            Write('Do you wonna add this word to dictionary?', #13#10, #9,
+                '1 - Yes', #13#10, #9, '2 - No', #13#10, '-> ');
+            ReadlnIntWithChecking(ToSave, 1, 2);
+            If ToSave = 1 Then
+                AddStringInOrder(AnswerStr, -(Pos + 1))
+            Else
+            Begin
+                CalculatePoints := -Length(AnswerStr);
+                Exit();
+            End;
+        End;
+
         If (LastAnswerStr[Length(LastAnswerStr)] = AnswerStr[1]) Then
             CalculatePoints := 2 * Length(AnswerStr)
         Else
@@ -327,83 +331,90 @@ Begin
     End
     Else
         CalculatePoints := -Length(AnswerStr);
+
+
 End;
 
-procedure outLettersOfPlayer(const indexOfPlayer: integer);
-begin
-    writeLn('Letters of player #', indexOfPlayer + 1);
-    for var I := Low(playersLetters[indexOfPlayer]) to High(playersLetters[indexOfPlayer]) do
-        write(playersLetters[indexOfPlayer][i],' ');
-    writeln;
-end;
+Procedure OutLettersOfPlayer(Const IndexOfPlayer: Integer);
+Begin
+    WriteLn('Letters of player #', IndexOfPlayer + 1);
+    For Var I := Low(PlayersLetters[IndexOfPlayer])
+        To High(PlayersLetters[IndexOfPlayer]) Do
+        Write(PlayersLetters[IndexOfPlayer][I], ' ');
+    Writeln;
+End;
 
 Procedure Bonus_1_50();
 Var
     I, J: Integer;
     IndexReplaceLetters: Integer;
 Begin
-    if PlayersBonus1[ActivePlayer] then
-    begin
-        if colOfAllLetters > 4 then
-        begin
-            outLettersOfPlayer(ActivePlayer);
+    If PlayersBonus1[ActivePlayer] Then
+    Begin
+        If ColOfAllLetters > 4 Then
+        Begin
+            OutLettersOfPlayer(ActivePlayer);
 
-            for I := 1 to 5 do
-            begin
-                Write('#', i, ' Enter the index of letters you want to replace: ');
+            For I := 1 To 5 Do
+            Begin
+                Write('#', I,
+                    ' Enter the index of letters you want to replace: ');
                 ReadlnIntWithChecking(IndexReplaceLetters, 1, 10);
-                PlayersLetters[ActivePlayer][IndexReplaceLetters] := GetRandomLetter();
+                PlayersLetters[ActivePlayer][IndexReplaceLetters] :=
+                    GetRandomLetter();
 
-                outLettersOfPlayer(ActivePlayer);
-            end;
+                OutLettersOfPlayer(ActivePlayer);
+            End;
 
             PlayersRes[ActivePlayer] := PlayersRes[ActivePlayer] - 2;
-            PlayersBonus1[ActivePlayer] := false;
-        end
-        else
-        begin
-            writeln('There are no letters in bank.');
-        end;
-    end
-    else
-        writeln('You cant do it again.');
+            PlayersBonus1[ActivePlayer] := False;
+        End
+        Else
+        Begin
+            Writeln('There are no letters in bank.');
+        End;
+    End
+    Else
+        Writeln('You cant do it again.');
 End;
 
 Procedure Bonus_2_Swap();
 Var
     Char1, Char2, Temp: Integer;
     I, J, OtherPlayer: Integer;
-    dp: AnsiChar;
+    Dp: AnsiChar;
 Begin
-    if PlayersBonus2[ActivePlayer] then
-    begin
+    If PlayersBonus2[ActivePlayer] Then
+    Begin
         Write('Enter the index of your letter you want to replace: ');
-        ReadlnIntWithChecking(Char1, 1, length(playersLetters[activePlayer]));
+        ReadlnIntWithChecking(Char1, 1, Length(PlayersLetters[ActivePlayer]));
         Write('Enter your opponent`s number: ');
 
-        ReadlnIntWithChecking(OtherPlayer, 1, length(playerNames));
-        dec(OtherPlayer);
-        while otherPlayer = activePlayer do
-        begin
-            write('You cant choose yourself! Try again: ');
-            ReadlnIntWithChecking(OtherPlayer, 1, length(playerNames));
-        end;
+        ReadlnIntWithChecking(OtherPlayer, 1, Length(PlayerNames));
+        Dec(OtherPlayer);
+        While OtherPlayer = ActivePlayer Do
+        Begin
+            Write('You cant choose yourself! Try again: ');
+            ReadlnIntWithChecking(OtherPlayer, 1, Length(PlayerNames));
+        End;
 
         WriteLn('The letters of the opponent: ');
-        outLettersOfPlayer(otherPlayer);
+        OutLettersOfPlayer(OtherPlayer);
         Write('Specify the letter of the opponent you want to replace: ');
-        ReadlnIntWithChecking(Char2, 1, length(playersLetters[otherPlayer - 1]));
+        ReadlnIntWithChecking(Char2, 1,
+            Length(PlayersLetters[OtherPlayer - 1]));
 
-        dp := playersLetters[activePlayer][char1];
-        playersLetters[activePlayer][char1] := playersLetters[OtherPlayer][char2];
-        playersLetters[OtherPlayer][char2] := dp;
+        Dp := PlayersLetters[ActivePlayer][Char1];
+        PlayersLetters[ActivePlayer][Char1] :=
+            PlayersLetters[OtherPlayer][Char2];
+        PlayersLetters[OtherPlayer][Char2] := Dp;
 
         Write('Changed letters: ');
-        outLettersOfPlayer(ActivePlayer);
-        PlayersBonus2[ActivePlayer]:= false;
-    end
-    else
-        writeln('You cant do it again.');
+        OutLettersOfPlayer(ActivePlayer);
+        PlayersBonus2[ActivePlayer] := False;
+    End
+    Else
+        Writeln('You cant do it again.');
 End;
 
 Var
@@ -414,7 +425,9 @@ Var
 
 Begin
     Writeln('~~~ ERUDIT GAME ~~~');
-    Writeln(#13#10, 'To use bonus you should write 50/50 or help (помощь на русском).', #13#10);
+    Writeln(#13#10,
+        'To use bonus you should write 50/50 or help (помощь на русском).',
+        #13#10);
 
     Write('Choose language:', #13#10, #9, '1-RUSSIAN', #13#10, #9, '2-ENGLISH',
         #13#10, ' -> ');
@@ -443,47 +456,47 @@ Begin
 
         Writeln(#13#10, 'Player #', ActivePlayer + 1, ' (',
             PlayerNames[ActivePlayer], '): ', #13#10, 'Letters: ');
-        for var I := Low(PlayersLetters[ActivePlayer]) to High(PlayersLetters[ActivePlayer]) do
+        For Var I := Low(PlayersLetters[ActivePlayer])
+            To High(PlayersLetters[ActivePlayer]) Do
             Write(PlayersLetters[ActivePlayer][I], ' ');
 
-        if PrevStr <> ' ' then
-            write(#13#10, 'Last word: ', PrevStr);
+        If PrevStr <> ' ' Then
+            Write(#13#10, 'Last word: ', PrevStr);
 
         Write(#13#10, '-> ');
 
-        ReadlnStrWithChecking(RequestStr, length(playersLetters[activePlayer]));
+        ReadlnStrWithChecking(RequestStr, Length(PlayersLetters[ActivePlayer]));
         FormatString(RequestStr);
 
         If RequestStr = '50/50' Then
             Bonus_1_50()
+        Else If (RequestStr = 'help') Or (RequestStr = 'помощь') Then
+            Bonus_2_Swap()
         Else
-            If (RequestStr = 'help') or (RequestStr = 'помощь') Then
-                Bonus_2_Swap()
-            Else
+        Begin
+            Var
+            CurrentPlayerResult := 0;
+
+            If RequestStr <> '' Then
             Begin
-                Var CurrentPlayerResult := 0;
+                CurrentPlayerResult := CalculatePoints(PrevStr, RequestStr);
+                Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
 
-                if RequestStr <> '' then
-                begin
-                    CurrentPlayerResult := CalculatePoints(PrevStr,
-                        RequestStr);
-                    Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
+                If CurrentPlayerResult > 0 Then
+                    PrevStr := RequestStr;
 
-                    if currentPlayerResult > 0 then
-                        PrevStr := RequestStr;
-
-                    deleteUsedLetters(RequestStr);
-                end;
-
-                History[ActivePlayer] := CurrentPlayerResult;
-
-                // Next step
-                ActivePlayer := (ActivePlayer + 1) Mod ColPlayers;
-
-                IsGameOn := False;
-                For Var I := 0 To High(History) Do
-                    IsGameOn := (IsGameOn) Or (History[I] <> 0);
+                DeleteUsedLetters(RequestStr);
             End;
+
+            History[ActivePlayer] := CurrentPlayerResult;
+
+            // Next step
+            ActivePlayer := (ActivePlayer + 1) Mod ColPlayers;
+
+            IsGameOn := False;
+            For Var I := 0 To High(History) Do
+                IsGameOn := (IsGameOn) Or (History[I] <> 0);
+        End;
     End;
 
     Writeln('Game over.', #13#10);
