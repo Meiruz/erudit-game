@@ -483,9 +483,11 @@ Begin
                 Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
 
                 If CurrentPlayerResult > 0 Then
+                begin
                     PrevStr := RequestStr;
 
-                DeleteUsedLetters(RequestStr);
+                    DeleteUsedLetters(RequestStr);
+                end;
             End;
 
             History[ActivePlayer] := CurrentPlayerResult;
