@@ -1,24 +1,50 @@
-unit Unit1;
+Unit Unit1;
 
-interface
+Interface
 
-uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+Uses
+    Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+    System.Classes, Vcl.Graphics,
+    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.Pngimage, Vcl.ExtCtrls,
+    Vcl.StdCtrls, Vcl.Grids, MainUnit;
 
-type
-  TForm1 = class(TForm)
-  private
-    { Private declarations }
-  public
-    { Public declarations }
-  end;
+Type
+    TStartForm = Class(TForm)
+        CatImage: TImage;
+        TitleLabel: TLabel;
+        PlayerNames: TStringGrid;
+        I: TImage;
+        Image1: TImage;
+        Label1: TLabel;
+        Procedure Image1Click(Sender: TObject);
+    Private
+        { Private declarations }
+    Public
+        { Public declarations }
+    End;
 
-var
-  Form1: TForm1;
+Var
+    StartForm: TStartForm;
 
-implementation
+Implementation
 
 {$R *.dfm}
 
-end.
+Procedure TStartForm.Image1Click(Sender: TObject);
+var
+    MainForm: TMainForm;
+Begin
+    // Get language and players and put them in function with creating of new form
+    MainForm := TMainForm.Create(Self);
+
+    Try
+        MainForm.Language := RUS;
+        MainForm.PlayerNames := ['Bob', 'Helen', 'Karl'];
+        MainForm.ShowModal;
+    Finally
+        MainForm.Free;
+    End;
+
+End;
+
+End.
