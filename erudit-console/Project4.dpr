@@ -229,10 +229,17 @@ Begin
         J := 1;
         While J <= Length(PlayersLetters[ActivePlayer]) Do
         Begin
+<<<<<<< Updated upstream
             If TempStr[I] = PlayersLetters[ActivePlayer][J] Then
             Begin
                 Delete(PlayersLetters[ActivePlayer], J, 1);
                 TempStr[I] := ' ';
+=======
+            If Str[I] = PlayersLetters[ActivePlayer][J] Then
+            Begin
+                Delete(PlayersLetters[ActivePlayer], J, 1);
+                break
+>>>>>>> Stashed changes
             End
             Else
                 Inc(J);
@@ -408,13 +415,14 @@ Begin
         Begin
             Write('You cant choose yourself! Try again: ');
             ReadlnIntWithChecking(OtherPlayer, 1, Length(PlayerNames));
+            Dec(OtherPlayer);
         End;
 
         WriteLn('The letters of the opponent: ');
         OutLettersOfPlayer(OtherPlayer);
         Write('Specify the letter of the opponent you want to replace: ');
         ReadlnIntWithChecking(Char2, 1,
-            Length(PlayersLetters[OtherPlayer - 1]));
+            Length(PlayersLetters));
 
         Dp := PlayersLetters[ActivePlayer][Char1];
         PlayersLetters[ActivePlayer][Char1] :=
@@ -461,11 +469,10 @@ Begin
         Preparation(ENG, UserNames);
 
     IsGameOn := True;
+    GivePlayersTheirLetters(ActivePlayer);
     PrevStr := ' ';
     While IsGameOn Do
     Begin
-        GivePlayersTheirLetters(ActivePlayer);
-
         Writeln(#13#10, 'Player #', ActivePlayer + 1, ' (',
             PlayerNames[ActivePlayer], '): ', #13#10, 'Letters: ');
         For Var I := Low(PlayersLetters[ActivePlayer])
@@ -499,7 +506,12 @@ Begin
                     PrevStr := RequestStr;
 
                     DeleteUsedLetters(RequestStr);
+<<<<<<< Updated upstream
                 End;
+=======
+                    GivePlayersTheirLetters(ActivePlayer);
+                end;
+>>>>>>> Stashed changes
             End;
 
             History[ActivePlayer] := CurrentPlayerResult;
