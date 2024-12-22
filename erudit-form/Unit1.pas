@@ -17,7 +17,6 @@ Type
         Image1: TImage;
         Label1: TLabel;
         Procedure Image1Click(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     Private
         { Private declarations }
     Public
@@ -26,15 +25,11 @@ Type
 
 Var
     StartForm: TStartForm;
+    Scale: Integer;
 
 Implementation
 
 {$R *.dfm}
-
-procedure TStartForm.FormCreate(Sender: TObject);
-begin
-    Self.Scaled := false;
-end;
 
 Procedure TStartForm.Image1Click(Sender: TObject);
 var
@@ -45,7 +40,7 @@ Begin
 
     Try
         MainForm.Language := RUS;
-        MainForm.PlayerNames := ['Bob', 'Helen', 'Karl'];
+        MainForm.PlayerNames := ['Bob', 'Helen', 'Karl', 'david'];
         MainForm.ShowModal;
     Finally
         MainForm.Free;

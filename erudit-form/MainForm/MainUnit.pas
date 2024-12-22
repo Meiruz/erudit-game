@@ -48,8 +48,8 @@ Const
     ENG_A = Ord('a');
     COL_USER_LETTERS = 10;
     PIC_URL: Array [0 .. 4] Of String = ('../../images/brownCat.png',
-        '../../images/brownCat.png', '../../images/brownCat.png',
-        '../../images/brownCat.png', '../../images/brownCat.png');
+        '../../images/greyCat.png', '../../images/whiteCat.png',
+        '../../images/blackCat.png', '../../images/redCat.png');
 
 Var
     MainForm: TMainForm;
@@ -80,7 +80,7 @@ End;
 
 Procedure CenterLabelByImage(Const Element: TLabel; Const SecondEl: TImage);
 Begin
-    Element.Left := SecondEl.Left + (SecondEl.Width - Element.Width) Div 2;
+    Element.Left := SecondEl.Left + (SecondEl.Width - Element.Width) Div 2 - 5;
 End;
 
 Function GetRandomLetter(): Ansichar;
@@ -104,10 +104,10 @@ End;
 Function GetPositionsOfPlayers(Const Count: Integer): TMatrix;
 Begin
     Case Count Of
-        2: Result := [[400, 88]];
-        3: Result := [[709, 177], [80, 177]];
-        4: Result := [];
-        5: Result := [];
+        2: Result := [[456, 88]];
+        3: Result := [[795, 225], [123, 225]];
+        4: Result := [[795, 225], [456, 88], [123, 225]];
+        5: Result := [[795, 225], [603, 65], [299, 65], [123, 225]];
     End;
 End;
 
@@ -169,17 +169,20 @@ Begin
 
     For Var I := Low(Positions) To High(Positions) Do
     Begin
-        Application.MessageBox(PWideChar(positions[i]), '');
-
         Players[I] := TImage.Create(Self);
-        Players[I].Parent := Self;
         Players[I].Left := Positions[I][0];
         Players[I].Top := Positions[I][1];
-        Players[I].Width := 233;
         Players[I].Proportional := True;
         Players[I].Name := 'PlayerImage' + IntToStr(I);
         Players[I].Picture.LoadFromFile(PIC_URL[I]);
+        var ar := players[i].picture.height / Players[i].Picture.width;
+        Players[I].Width := 170;
+        Players[i].Height := round(Players[I].Width * ar);
+        Players[I].Parent := Self;
     End;
+
+    Table.BringToFront;
+    Line.BringToFront;
 
 End;
 
