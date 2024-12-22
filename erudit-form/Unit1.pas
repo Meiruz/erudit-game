@@ -17,6 +17,7 @@ Type
         Image1: TImage;
         Label1: TLabel;
         Procedure Image1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     Private
         { Private declarations }
     Public
@@ -29,6 +30,11 @@ Var
 Implementation
 
 {$R *.dfm}
+
+procedure TStartForm.FormCreate(Sender: TObject);
+begin
+    Self.Scaled := false;
+end;
 
 Procedure TStartForm.Image1Click(Sender: TObject);
 var

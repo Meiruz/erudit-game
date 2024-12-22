@@ -14,6 +14,7 @@ Type
     TArrayStr = Array Of AnsiString;
     TArrayBool = Array Of Boolean;
     TMatrixChar = Array Of AnsiString;
+    TMatrix = Array Of Array Of Integer;
 
     TMainForm = Class(TForm)
         BackgroundImage: TImage;
@@ -22,8 +23,13 @@ Type
         ActivePlayerImage: TImage;
         TopLine: TImage;
         PlayerName: TLabel;
+        BonusFriend: TImage;
+        BonusSwap: TImage;
+        Result: TImage;
+        Coins: TImage;
         Procedure SetPlayersOnTheirPos();
         Procedure FormShow(Sender: TObject);
+        Procedure CreatePlayers();
     Private
         { Private declarations }
     Public
@@ -41,6 +47,9 @@ Const
     RUS_A = Ord('à');
     ENG_A = Ord('a');
     COL_USER_LETTERS = 10;
+    PIC_URL: Array [0 .. 4] Of String = ('../../images/brownCat.png',
+        '../../images/brownCat.png', '../../images/brownCat.png',
+        '../../images/brownCat.png', '../../images/brownCat.png');
 
 Var
     MainForm: TMainForm;
@@ -57,6 +66,8 @@ Var
     ActivePlayer: Integer;
     ValueA: Integer;
     History: TArrayInt;
+
+    Players: Array Of TImage;
 
 Implementation
 
@@ -87,6 +98,16 @@ Begin
             Dec(LettersBank[K]);
             Exit;
         End;
+    End;
+End;
+
+Function GetPositionsOfPlayers(Const Count: Integer): TMatrix;
+Begin
+    Case Count Of
+        2: Result := [[400, 88]];
+        3: Result := [[709, 177], [80, 177]];
+        4: Result := [];
+        5: Result := [];
     End;
 End;
 
@@ -139,8 +160,32 @@ Begin
 
 End;
 
+Procedure TMainForm.CreatePlayers();
+Var
+    Positions: TMatrix;
+Begin
+    Positions := GetPositionsOfPlayers(ColPlayers);
+    SetLength(Players, ColPlayers);
+
+    For Var I := Low(Positions) To High(Positions) Do
+    Begin
+        Application.MessageBox(PWideChar(positions[i]), '');
+
+        Players[I] := TImage.Create(Self);
+        Players[I].Parent := Self;
+        Players[I].Left := Positions[I][0];
+        Players[I].Top := Positions[I][1];
+        Players[I].Width := 233;
+        Players[I].Proportional := True;
+        Players[I].Name := 'PlayerImage' + IntToStr(I);
+        Players[I].Picture.LoadFromFile(PIC_URL[I]);
+    End;
+
+End;
+
 Procedure TMainForm.FormShow(Sender: TObject);
 Begin
+    Self.Scaled := false;
     Preparation(Self.Language, Self.PlayerNames);
     CenterImage(Table);
     CenterImage(TopLine);
@@ -148,6 +193,7 @@ Begin
     CenterImage(ActivePlayerImage);
     CenterLabelByImage(PlayerName, ActivePlayerImage);
     SetPlayersOnTheirPos;
+    CreatePlayers;
 End;
 
 Procedure TMainForm.SetPlayersOnTheirPos();
