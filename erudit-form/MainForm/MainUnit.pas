@@ -27,9 +27,13 @@ Type
         BonusSwap: TImage;
         Result: TImage;
         Coins: TImage;
+    ResultLabel: TLabel;
+    WordEdit: TEdit;
+    LettersLabel: TLabel;
         Procedure SetPlayersOnTheirPos();
         Procedure FormShow(Sender: TObject);
         Procedure CreatePlayers();
+        Procedure UpdateStates();
     Private
         { Private declarations }
     Public
@@ -73,6 +77,8 @@ Implementation
 
 {$R *.dfm}
 
+
+
 Procedure CenterImage(Const Element: TImage);
 Begin
     Element.Left := (MainForm.ClientWidth - Element.Width) Div 2;
@@ -82,6 +88,30 @@ Procedure CenterLabelByImage(Const Element: TLabel; Const SecondEl: TImage);
 Begin
     Element.Left := SecondEl.Left + (SecondEl.Width - Element.Width) Div 2 - 5;
 End;
+
+Procedure TMainForm.UpdateStates();
+var
+  I: Integer;
+begin
+    PlayerName.Caption := PlayerNames[ActivePlayer];
+    CenterLabelByImage(PlayerName, ActivePlayerImage);
+
+    ResultLabel.Caption := IntToStr(PlayersRes[ActivePlayer]);
+    CenterLabelByImage(ResultLabel, Result);
+
+    BonusFriend.Visible := PlayersBonus1[ActivePlayer];
+    BonusSwap.Visible := PlayersBonus2[ActivePlayer];
+
+    LettersLabel.Caption := playersLetters[ActivePlayer];
+    CenterLabelByImage(LettersLabel, BackgroundImage);
+    LettersLabel.BringToFront;
+
+    for I := 0 to colplayers-2 do
+    begin
+        Application.MessageBox(PWideChar(PIC_URL[(I + ActivePlayer + 1) mod ColPlayers]), '');
+        players[i].Picture.LoadFromFile(PIC_URL[(I + ActivePlayer + 1) mod ColPlayers]);
+    end;
+end;
 
 Function GetRandomLetter(): Ansichar;
 Var
@@ -194,9 +224,11 @@ Begin
     CenterImage(TopLine);
     CenterImage(Line);
     CenterImage(ActivePlayerImage);
-    CenterLabelByImage(PlayerName, ActivePlayerImage);
+    WordEdit.Left := (Self.ClientWidth - WordEdit.width) div 2;
+
     SetPlayersOnTheirPos;
     CreatePlayers;
+    updateStates;
 End;
 
 Procedure TMainForm.SetPlayersOnTheirPos();
