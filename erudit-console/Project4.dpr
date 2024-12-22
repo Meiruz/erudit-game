@@ -17,7 +17,7 @@ Const
     COL_LETTERS_FOR_USER = 10;
     COL_LETTERS_RU = 33;
     COL_VOWELS_LETTERS_RU = 10;
-    VOWELS_RU: Set Of AnsiChar = ['a', 'о', 'у', 'е', 'ё', 'ы', 'э', 'я',
+    VOWELS_RU: Set Of AnsiChar = ['а', 'о', 'у', 'е', 'ё', 'ы', 'э', 'я',
         'и', 'ю'];
     COL_LETTERS_EN = 26;
     COL_VOWELS_LETTERS_EN = 6;
@@ -53,10 +53,13 @@ Begin
     Randomize;
     While True Do
     Begin
-        K := Random(High(LettersBank));
+        K := Random(High(LettersBank) + 1);
         If LettersBank[K] > 0 Then
         Begin
-            GetRandomLetter := Ansichar(K + ValueA);
+            If K <> High(LettersBank) Then
+                GetRandomLetter := Ansichar(K + ValueA)
+            Else
+                GetRandomLetter := 'ё';
             Dec(ColOfAllLetters);
             Dec(LettersBank[K]);
             Exit;
@@ -100,12 +103,17 @@ Begin
         ValueA := ENG_A;
     End;
 
-    For I := 0 To High(LettersBank) Do
-        If (Char(ValueA + I) In VOWELS_RU) Or
-            (Char(ValueA + I) In VOWELS_EN) Then
+    For I := 0 To High(LettersBank) - 1 Do
+        If (Ansichar(ValueA + I) In VOWELS_RU) Or
+            (Ansichar(ValueA + I) In VOWELS_EN) Then
             LettersBank[I] := 8
         Else
             LettersBank[I] := 4;
+
+    If ValueA = Ord('а') Then
+        LettersBank[High(LettersBank)] := 8
+    Else
+        LettersBank[High(LettersBank)] := 4;
 
     SetLength(PlayersLetters, ColPlayers);
     For I := Low(PlayersLetters) To High(PlayersLetters) Do
@@ -181,10 +189,13 @@ Begin
     For I := 1 To Length(AnswerStr) Do
     Begin
         IsIn := False;
-        For J := LOw(PlayersLetters[ActivePlayer])
-            To HIGH(PlayersLetters[ActivePlayer]) Do
+        For J := LOW(PlayersLetters[ActivePlayer]) To HIGH(PlayersLetters[ActivePlayer]) Do
+        Begin
+            If AnswerStr[I] = 'Ш' Then
+                AnswerStr[I] := 'ё';
             If AnswerStr[I] = PlayersLetters[ActivePlayer][J] Then
                 IsIn := True;
+        End;
 
         If Not IsIn Then
         Begin
@@ -417,7 +428,7 @@ Begin
         OutLettersOfPlayer(OtherPlayer);
         Write('Specify the letter of the opponent you want to replace: ');
         ReadlnIntWithChecking(Char2, 1,
-            Length(PlayersLetters));
+            COL_LETTERS_FOR_USER);
 
         Dp := PlayersLetters[ActivePlayer][Char1];
         PlayersLetters[ActivePlayer][Char1] :=
@@ -476,8 +487,15 @@ Begin
             To High(PlayersLetters[ActivePlayer]) Do
             Write(PlayersLetters[ActivePlayer][I], ' ');
 
+        Write(#13#10, 'Your score: ', PlayersRes[ActivePlayer]);
+
         If PrevStr <> ' ' Then
+        Begin
+            For Var I := 1 To Length(PrevStr) Do
+                If PrevStr[I] = 'Ш' Then
+                    PrevStr[I] := 'ё';
             Write(#13#10, 'Last word: ', PrevStr);
+        End;
 
         Write(#13#10, '-> ');
 
