@@ -17,7 +17,8 @@ Const
     COL_LETTERS_FOR_USER = 10;
     COL_LETTERS_RU = 33;
     COL_VOWELS_LETTERS_RU = 10;
-    VOWELS_RU: Set Of AnsiChar = ['a', 'о', 'у', 'е', 'ё', 'ы', 'э', 'я', 'и', 'ю'];
+    VOWELS_RU: Set Of AnsiChar = ['a', 'о', 'у', 'е', 'ё', 'ы', 'э', 'я',
+        'и', 'ю'];
     COL_LETTERS_EN = 26;
     COL_VOWELS_LETTERS_EN = 6;
     VOWELS_EN: Set Of AnsiChar = ['e', 'y', 'u', 'i', 'o', 'a'];
@@ -100,7 +101,8 @@ Begin
     End;
 
     For I := 0 To High(LettersBank) Do
-        If (Char(ValueA + I) in VOWELS_RU) Or (Char(ValueA + I) in VOWELS_EN) Then
+        If (Char(ValueA + I) In VOWELS_RU) Or
+            (Char(ValueA + I) In VOWELS_EN) Then
             LettersBank[I] := 8
         Else
             LettersBank[I] := 4;
@@ -229,17 +231,10 @@ Begin
         J := 1;
         While J <= Length(PlayersLetters[ActivePlayer]) Do
         Begin
-<<<<<<< Updated upstream
             If TempStr[I] = PlayersLetters[ActivePlayer][J] Then
             Begin
                 Delete(PlayersLetters[ActivePlayer], J, 1);
-                TempStr[I] := ' ';
-=======
-            If Str[I] = PlayersLetters[ActivePlayer][J] Then
-            Begin
-                Delete(PlayersLetters[ActivePlayer], J, 1);
-                break
->>>>>>> Stashed changes
+                break;
             End
             Else
                 Inc(J);
@@ -473,6 +468,8 @@ Begin
     PrevStr := ' ';
     While IsGameOn Do
     Begin
+
+
         Writeln(#13#10, 'Player #', ActivePlayer + 1, ' (',
             PlayerNames[ActivePlayer], '): ', #13#10, 'Letters: ');
         For Var I := Low(PlayersLetters[ActivePlayer])
@@ -506,12 +503,8 @@ Begin
                     PrevStr := RequestStr;
 
                     DeleteUsedLetters(RequestStr);
-<<<<<<< Updated upstream
-                End;
-=======
                     GivePlayersTheirLetters(ActivePlayer);
-                end;
->>>>>>> Stashed changes
+                End;
             End;
 
             History[ActivePlayer] := CurrentPlayerResult;
