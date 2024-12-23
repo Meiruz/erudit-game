@@ -35,7 +35,6 @@ Type
         Procedure SetPlayersOnTheirPos();
         Procedure FormShow(Sender: TObject);
         Procedure CreatePlayers();
-        Procedure stopGame();
         Procedure UpdateStates();
         Procedure WordEditKeyPress(Sender: TObject; Var Key: Char);
     Private
@@ -219,9 +218,28 @@ Begin
     End;
 End;
 
-Procedure TMainForm.stopGame();
+Function WinnerFound(): Integer;
+Var
+    MaxPoints, I: Integer;
+
+Begin
+    MaxPoints := PlayersRes[0];
+    For I := 1 To High(PlayersRes) Do
+        If PlayersRes[I] > MaxPoints Then
+            MaxPoints := PlayersRes[I];
+
+    Result := MaxPoints;
+End;
+
+Procedure stopGame();
+var
+    ans: string;
 begin
-    //
+//    var MaxPoints := WinnerFound;
+//    Writeln('Winners: ');
+//    For I := 0 To High(PlayersRes) Do
+//        If PlayersRes[I] = MaxPoints Then
+//            ans := ans + #9, PlayerNames[I], ' with ', MaxPoints, ' points.');
 end;
 
 Function FindStrInUserLetters(AnswerStr: AnsiString): Boolean;
