@@ -78,6 +78,9 @@ Var
     LastRightWord: String;
 
     Players: Array Of TImage;
+    NameImgs: Array Of TImage;
+    NameLabels: Array Of TLabel;
+    ScoreLabels: Array Of TLabel;
 
 Implementation
 
@@ -176,6 +179,8 @@ Begin
     Begin
         Players[I].Picture.LoadFromFile
             (PIC_URL[(I + ActivePlayer + 1) Mod ColPlayers]);
+        nameLabels[i].Caption := PlayerNames[(I + ActivePlayer + 1) Mod ColPlayers];
+        ScoreLabels[i].Caption := intToStr(PlayersRes[(I + ActivePlayer + 1) Mod ColPlayers]);
     End;
 End;
 
@@ -352,9 +357,6 @@ Begin
         WordEdit.Text := '';
 
         UpdateStates;
-
-
-
     End;
 End;
 
@@ -425,6 +427,9 @@ Var
 Begin
     Positions := GetPositionsOfPlayers(ColPlayers);
     SetLength(Players, ColPlayers);
+    SetLength(NameImgs, ColPlayers);
+    SetLength(NameLabels, ColPlayers);
+    SetLength(ScoreLabels, ColPlayers);
 
     For Var I := Low(Positions) To High(Positions) Do
     Begin
@@ -439,6 +444,35 @@ Begin
         Players[I].Width := 170;
         Players[I].Height := Round(Players[I].Width * Ar);
         Players[I].Parent := Self;
+
+        NameImgs[I] := TImage.Create(Self);
+        NameImgs[I].Left := Positions[I][0];
+        NameImgs[I].Proportional := True;
+        NameImgs[I].Name := 'ScoreImage' + IntToStr(I);
+        NameImgs[I].Picture.LoadFromFile('../../images/yellowBtn.png');
+        Ar := NameImgs[I].Picture.Height / NameImgs[I].Picture.Width;
+        NameImgs[I].Width := 170;
+        NameImgs[I].Height := Round(NameImgs[I].Width * Ar);
+        NameImgs[I].Parent := Self;
+        NameImgs[I].Top := Positions[I][1] - NameImgs[I].Height - 10;
+
+        NameLabels[I] := TLabel.Create(Self);
+        NameLabels[I].Caption := playerNames[I];
+        NameLabels[I].Font.Size := 10;
+        NameLabels[I].Top := Positions[I][1] - NameLabels[I].Height - 34;
+        NameLabels[I].Name := 'NameLabel' + IntToStr(I);
+        CenterLabelByImage(NameLabels[I], NameImgs[I]);
+        NameLabels[I].Parent := Self;
+        NameLabels[I].BringToFront;
+
+        ScoreLabels[I] := TLabel.Create(Self);
+        ScoreLabels[I].Caption := intToStr(PlayersRes[I]);
+        ScoreLabels[I].Font.Size := 10;
+        ScoreLabels[I].Top := Positions[I][1] - ScoreLabels[I].Height - 16;
+        ScoreLabels[I].Name := 'ScoreLabel' + IntToStr(I);
+        CenterLabelByImage(ScoreLabels[I], NameImgs[I]);
+        ScoreLabels[I].Parent := Self;
+        ScoreLabels[I].BringToFront;
     End;
 
     Table.BringToFront;

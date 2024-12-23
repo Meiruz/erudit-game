@@ -12,10 +12,14 @@ Type
     TStartForm = Class(TForm)
         CatImage: TImage;
         TitleLabel: TLabel;
-        PlayerNames: TStringGrid;
-        I: TImage;
+    Background: TImage;
         Image1: TImage;
         Label1: TLabel;
+    GroupBox1: TGroupBox;
+    RadioButton1: TRadioButton;
+    RadioButton2: TRadioButton;
+    Label2: TLabel;
+    ArrayInputGrid: TStringGrid;
         Procedure Image1Click(Sender: TObject);
     Private
         { Private declarations }
@@ -34,17 +38,44 @@ Implementation
 Procedure TStartForm.Image1Click(Sender: TObject);
 var
     MainForm: TMainForm;
+    lang: TLang;
+    I, ColPlayers: Integer;
+    names: TArrayStr;
 Begin
-    // Get language and players and put them in function with creating of new form
-    MainForm := TMainForm.Create(Self);
+    if RadioButton1.Enabled then
+        lang := RUS
+    else
+        lang := ENG;
 
-    Try
-        MainForm.Language := RUS;
-        MainForm.PlayerNames := ['Bob', 'Helen'];
-        MainForm.ShowModal;
-    Finally
-        MainForm.Free;
-    End;
+    colPlayers := 0;
+    for I := 0 to 4 do
+        if ArrayInputGrid.Cells[0, I] <> '' then
+            inc(colPlayers);
+
+    if colPlayers > 2 then
+    begin
+        setLength(names, colPlayers);
+        var j := 0;
+
+        for I := 0 to 4 do
+            if ArrayInputGrid.Cells[0, I] <> '' then
+            begin
+                names[j] := ArrayInputGrid.Cells[0, I];
+                inc(j);
+            end;
+
+        // Get language and players and put them in function with creating of new form
+        MainForm := TMainForm.Create(Self);
+
+        Try
+            MainForm.Language := lang;
+            MainForm.PlayerNames := names;
+            StartForm.Visible := false;
+            MainForm.ShowModal;
+        Finally
+            MainForm.Free;
+        End;
+    end;
 
 End;
 
