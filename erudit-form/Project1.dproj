@@ -137,6 +137,14 @@
         <DCCReference Include="SwapBonus\Unit2.pas">
             <Form>SwapLetters</Form>
         </DCCReference>
+        <DCCReference Include="Bonus50\Unit3.pas">
+            <Form>Bonus50</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="helper\Unit4.pas">
+            <Form>Form4</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

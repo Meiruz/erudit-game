@@ -10,8 +10,8 @@ Uses
 
 Type
     TLang = (RUS, ENG);
+    TArrayStr = Array Of String;
     TArrayInt = Array Of Integer;
-    TArrayStr = Array Of AnsiString;
     TArrayBool = Array Of Boolean;
     TMatrixChar = Array Of AnsiString;
     TMatrix = Array Of Array Of Integer;
@@ -30,14 +30,15 @@ Type
         ResultLabel: TLabel;
         WordEdit: TEdit;
         LettersLabel: TLabel;
-    LastWordImg: TImage;
-    LastWordLabel: TLabel;
+        LastWordImg: TImage;
+        LastWordLabel: TLabel;
         Procedure SetPlayersOnTheirPos();
         Procedure FormShow(Sender: TObject);
         Procedure CreatePlayers();
-        Procedure stopGame();
+        Procedure StopGame();
         Procedure UpdateStates();
         Procedure WordEditKeyPress(Sender: TObject; Var Key: Char);
+        Procedure BonusFriendClick(Sender: TObject);
     Private
         { Private declarations }
     Public
@@ -82,6 +83,8 @@ Var
 Implementation
 
 {$R *.dfm}
+
+Uses Unit2;
 
 Function FormatString(Const OldStr: AnsiString): Ansistring;
 Var
@@ -147,8 +150,8 @@ Procedure TMainForm.UpdateStates();
 Var
     I: Integer;
 Begin
-    for I := Low(playerNames) to High(playerNames) do
-        GivePlayersTheirLetters(i);
+    For I := Low(PlayerNames) To High(PlayerNames) Do
+        GivePlayersTheirLetters(I);
 
     PlayerName.Caption := PlayerNames[ActivePlayer];
     CenterLabelByImage(PlayerName, ActivePlayerImage);
@@ -201,11 +204,10 @@ Begin
                 Result := Mid;
                 Exit;
             End
+            Else If CompareResult < 0 Then
+                Right := Mid - 1
             Else
-                If CompareResult < 0 Then
-                    Right := Mid - 1
-                Else
-                    Left := Mid + 1;
+                Left := Mid + 1;
         End;
 
         Result := -(Left + 1);
@@ -214,10 +216,10 @@ Begin
     End;
 End;
 
-Procedure TMainForm.stopGame();
-begin
+Procedure TMainForm.StopGame();
+Begin
     //
-end;
+End;
 
 Function FindStrInUserLetters(AnswerStr: AnsiString): Boolean;
 Var
@@ -271,12 +273,16 @@ Begin
     Begin
         If Pos < 0 Then
         Begin
-            var i := ActivePlayer;
+            Var
+            I := ActivePlayer;
             Repeat
-                ToSave := Application.MessageBox(PWideChar(WideString(PlayerNames[I]) + ', ¬ы согласны на добавление слова в словарь?'), PWideChar(WideString(PlayerNames[I])), MB_YESNO);
+                ToSave := Application.MessageBox
+                    (PWideChar(WideString(PlayerNames[I]) +
+                    ', ¬ы согласны на добавление слова в словарь?'),
+                    PWideChar(WideString(PlayerNames[I])), MB_YESNO);
                 Application.MessageBox(PWideChar(IntToStr(ToSave)), '');
-                i := (i + 1) mod ColPlayers;
-            Until (i = ActivePlayer) or (ToSave = 7);
+                I := (I + 1) Mod ColPlayers;
+            Until (I = ActivePlayer) Or (ToSave = 7);
 
             If ToSave = 6 Then
                 AddStringInOrder(AnswerStr, -(Pos + 1))
@@ -343,8 +349,8 @@ Begin
         For Var I := 0 To High(History) Do
             IsGameOn := (IsGameOn) Or (History[I] <> 0);
 
-        if not isGameOn then
-            stopGame();
+        If Not IsGameOn Then
+            StopGame();
 
         LastWordLabel.Caption := WordEdit.Text;
         CenterLabelByImage(LastWordLabel, LastWordImg);
@@ -353,18 +359,20 @@ Begin
 
         UpdateStates;
 
-
-
     End;
 End;
 
 Function GetPositionsOfPlayers(Const Count: Integer): TMatrix;
 Begin
     Case Count Of
-        2: Result := [[456, 88]];
-        3: Result := [[795, 225], [123, 225]];
-        4: Result := [[795, 225], [456, 88], [123, 225]];
-        5: Result := [[795, 225], [603, 65], [299, 65], [123, 225]];
+        2:
+            Result := [[456, 88]];
+        3:
+            Result := [[795, 225], [123, 225]];
+        4:
+            Result := [[795, 225], [456, 88], [123, 225]];
+        5:
+            Result := [[795, 225], [603, 65], [299, 65], [123, 225]];
     End;
 End;
 
@@ -417,6 +425,19 @@ Begin
             PlayersLetters[I] := PlayersLetters[I] + GetRandomLetter();
     End;
 
+End;
+
+Procedure TMainForm.BonusFriendClick(Sender: TObject);
+Begin
+    SwapLetters := TSwapLetters.Create(Self);
+    Try
+        SwapLetters.PlayerLetters := PlayersLetters;
+        SwapLetters.ActivePlayer := ActivePlayer;
+        //SwapLetters.OtherPlayer := OtherPlayer;
+        SwapLetters.ShowModal;
+    Finally
+        SwapLetters.Free;
+    End;
 End;
 
 Procedure TMainForm.CreatePlayers();

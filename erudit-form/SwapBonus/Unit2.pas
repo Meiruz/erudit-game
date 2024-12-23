@@ -6,11 +6,9 @@ Uses
     Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
     System.Classes, Vcl.Graphics,
     Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.Pngimage, Vcl.ExtCtrls,
-    Vcl.StdCtrls;
+    Vcl.StdCtrls, mainunit;
 
 Type
-    TArrayStr = Array Of String;
-
     TSwapLetters = Class(TForm)
         I: TImage;
         SwapBtn: TButton;
@@ -22,10 +20,9 @@ Type
     Private
         { Private declarations }
     Public
-        PlayerLetters: TArrayStr;
+        PlayerLetters: TMatrixChar;
         ActivePlayer: Integer;
         OtherPlayer: Integer;
-        PlayerName: String;
     End;
 
 Var
@@ -99,7 +96,7 @@ End;
 
 Procedure TSwapLetters.SwapBtnClick(Sender: TObject);
 Var
-    Dp: Char;
+    Dp: Ansichar;
 Begin
     Dp := PlayerLetters[OtherPlayer][OtherPlayerLet];
     PlayerLetters[OtherPlayer][OtherPlayerLet] := PlayerLetters[ActivePlayer][ActivePlayerLet];

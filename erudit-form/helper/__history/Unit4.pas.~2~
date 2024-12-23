@@ -1,0 +1,29 @@
+unit Unit4;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+
+type
+    TArrayStr = Array Of String;
+    TArrayInt = Array Of Integer;
+    TArrayBool = Array Of Boolean;
+    TMatrixChar = Array Of AnsiString;
+    TMatrix = Array Of Array Of Integer;
+  TForm4 = class(TForm)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form4: TForm4;
+
+implementation
+
+{$R *.dfm}
+
+end.
