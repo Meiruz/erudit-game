@@ -19,7 +19,6 @@ type
   private
     { Private declarations }
   public
-    MainForm: TMainForm;
     PlayerLetters: TArrayStr;
     LetterBank: TArrayInt;
   end;

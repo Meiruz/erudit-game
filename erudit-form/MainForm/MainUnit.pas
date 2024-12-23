@@ -39,6 +39,7 @@ Type
         Procedure UpdateStates();
         Procedure WordEditKeyPress(Sender: TObject; Var Key: Char);
         Procedure BonusFriendClick(Sender: TObject);
+        Procedure BonusSwapClick(Sender: TObject);
     Private
         { Private declarations }
     Public
@@ -433,10 +434,22 @@ Begin
     Try
         SwapLetters.PlayerLetters := PlayersLetters;
         SwapLetters.ActivePlayer := ActivePlayer;
-        //SwapLetters.OtherPlayer := OtherPlayer;
+        // SwapLetters.OtherPlayer := OtherPlayer;
         SwapLetters.ShowModal;
     Finally
         SwapLetters.Free;
+    End;
+End;
+
+Procedure TMainForm.BonusSwapClick(Sender: TObject);
+Begin
+    Bonus50 := TBonus50.Create(Self);
+    Try
+        Bonus50.PlayerLetters := PlayersLetters;
+        Bonus50.LetterBank := LetterBank;
+        Bonus50.ShowModal;
+    Finally
+        Bonus50.Free;
     End;
 End;
 
