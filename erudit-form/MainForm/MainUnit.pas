@@ -27,13 +27,17 @@ Type
         BonusSwap: TImage;
         Result: TImage;
         Coins: TImage;
-    ResultLabel: TLabel;
-    WordEdit: TEdit;
-    LettersLabel: TLabel;
+        ResultLabel: TLabel;
+        WordEdit: TEdit;
+        LettersLabel: TLabel;
+    LastWordImg: TImage;
+    LastWordLabel: TLabel;
         Procedure SetPlayersOnTheirPos();
         Procedure FormShow(Sender: TObject);
         Procedure CreatePlayers();
+        Procedure stopGame();
         Procedure UpdateStates();
+        Procedure WordEditKeyPress(Sender: TObject; Var Key: Char);
     Private
         { Private declarations }
     Public
@@ -44,7 +48,7 @@ Type
 
 Const
     COL_LETTERS_FOR_USER = 10;
-    COL_LETTERS_RU = 33;
+    COL_LETTERS_RU = 32;
     COL_LETTERS_EN = 26;
     COL_PLAYERS_MIN = 2;
     COL_PLAYERS_MAX = 5;
@@ -54,6 +58,7 @@ Const
     PIC_URL: Array [0 .. 4] Of String = ('../../images/brownCat.png',
         '../../images/greyCat.png', '../../images/whiteCat.png',
         '../../images/blackCat.png', '../../images/redCat.png');
+    DICTIONARY_FILE: Array [TLang] Of String = ('russian.txt', 'english.txt');
 
 Var
     MainForm: TMainForm;
@@ -70,6 +75,7 @@ Var
     ActivePlayer: Integer;
     ValueA: Integer;
     History: TArrayInt;
+    LastRightWord: String;
 
     Players: Array Of TImage;
 
@@ -77,7 +83,24 @@ Implementation
 
 {$R *.dfm}
 
+Function FormatString(Const OldStr: AnsiString): Ansistring;
+Var
+    CountOfletters: Integer;
+    Str: Ansistring;
+Begin
+    Str := OldStr;
+    While (Str <> '') And (Str[1] = ' ') Do
+        Delete(Str, 1, 1);
 
+    While (Str <> '') And (Str[Length(Str)] = ' ') Do
+        Delete(Str, Length(Str), 1);
+
+    For Var I := 1 To Length(Str) Do
+        If (Ord(Str[I]) < ValueA) And (Ord(Str[I]) >= Ord('A')) Then
+            Str[I] := Ansichar(Ord(Str[I]) + 32);
+
+    FormatString := Str;
+End;
 
 Procedure CenterImage(Const Element: TImage);
 Begin
@@ -88,30 +111,6 @@ Procedure CenterLabelByImage(Const Element: TLabel; Const SecondEl: TImage);
 Begin
     Element.Left := SecondEl.Left + (SecondEl.Width - Element.Width) Div 2 - 5;
 End;
-
-Procedure TMainForm.UpdateStates();
-var
-  I: Integer;
-begin
-    PlayerName.Caption := PlayerNames[ActivePlayer];
-    CenterLabelByImage(PlayerName, ActivePlayerImage);
-
-    ResultLabel.Caption := IntToStr(PlayersRes[ActivePlayer]);
-    CenterLabelByImage(ResultLabel, Result);
-
-    BonusFriend.Visible := PlayersBonus1[ActivePlayer];
-    BonusSwap.Visible := PlayersBonus2[ActivePlayer];
-
-    LettersLabel.Caption := playersLetters[ActivePlayer];
-    CenterLabelByImage(LettersLabel, BackgroundImage);
-    LettersLabel.BringToFront;
-
-    for I := 0 to colplayers-2 do
-    begin
-        Application.MessageBox(PWideChar(PIC_URL[(I + ActivePlayer + 1) mod ColPlayers]), '');
-        players[i].Picture.LoadFromFile(PIC_URL[(I + ActivePlayer + 1) mod ColPlayers]);
-    end;
-end;
 
 Function GetRandomLetter(): Ansichar;
 Var
@@ -128,6 +127,234 @@ Begin
             Dec(LettersBank[K]);
             Exit;
         End;
+    End;
+End;
+
+Procedure GivePlayersTheirLetters(Const IndexPlayer: Integer);
+Var
+    Ind, Pos: Integer;
+Begin
+    Ind := Length(PlayersLetters[IndexPlayer]);
+    While (Ind < COL_LETTERS_FOR_USER) And (ColOfAllLetters > 0) Do
+    Begin
+        PlayersLetters[IndexPlayer] := PlayersLetters[IndexPlayer] +
+            GetRandomLetter();
+        Inc(Ind);
+    End;
+End;
+
+Procedure TMainForm.UpdateStates();
+Var
+    I: Integer;
+Begin
+    for I := Low(playerNames) to High(playerNames) do
+        GivePlayersTheirLetters(i);
+
+    PlayerName.Caption := PlayerNames[ActivePlayer];
+    CenterLabelByImage(PlayerName, ActivePlayerImage);
+
+    ResultLabel.Caption := IntToStr(PlayersRes[ActivePlayer]);
+    CenterLabelByImage(ResultLabel, Result);
+
+    BonusFriend.Visible := PlayersBonus1[ActivePlayer];
+    BonusSwap.Visible := PlayersBonus2[ActivePlayer];
+
+    LettersLabel.Caption := '';
+    For I := Low(PlayersLetters[ActivePlayer])
+        To High(PlayersLetters[ActivePlayer]) Do
+    Begin
+        LettersLabel.Caption := LettersLabel.Caption + PlayersLetters
+            [ActivePlayer][I];
+        If I <> High(PlayersLetters[ActivePlayer]) Then
+            LettersLabel.Caption := LettersLabel.Caption + ', ';
+    End;
+
+    CenterLabelByImage(LettersLabel, BackgroundImage);
+    LettersLabel.BringToFront;
+
+    For I := 0 To Colplayers - 2 Do
+    Begin
+        Players[I].Picture.LoadFromFile
+            (PIC_URL[(I + ActivePlayer + 1) Mod ColPlayers]);
+    End;
+End;
+
+Function BinarySearch(Const AnswerStr: AnsiString): Integer;
+Var
+    Words: TStringList;
+    Left, Right, Mid, CompareResult: Integer;
+Begin
+    Words := TStringList.Create;
+    Try
+        Words.LoadFromFile(DICTIONARY_FILE[Language]);
+
+        Left := 0;
+        Right := Words.Count - 1;
+
+        While Left <= Right Do
+        Begin
+            Mid := (Left + Right) Div 2;
+            CompareResult := CompareStr(AnswerStr, Ansistring(Words[Mid]));
+
+            If CompareResult = 0 Then
+            Begin
+                Result := Mid;
+                Exit;
+            End
+            Else
+                If CompareResult < 0 Then
+                    Right := Mid - 1
+                Else
+                    Left := Mid + 1;
+        End;
+
+        Result := -(Left + 1);
+    Finally
+        Words.Free;
+    End;
+End;
+
+Procedure TMainForm.stopGame();
+begin
+    //
+end;
+
+Function FindStrInUserLetters(AnswerStr: AnsiString): Boolean;
+Var
+    I, J: Integer;
+    IsIn: Boolean;
+Begin
+    FindStrInUserLetters := True;
+    For I := 1 To Length(AnswerStr) Do
+    Begin
+        IsIn := False;
+        For J := LOw(PlayersLetters[ActivePlayer])
+            To HIGH(PlayersLetters[ActivePlayer]) Do
+            If AnswerStr[I] = PlayersLetters[ActivePlayer][J] Then
+                IsIn := True;
+
+        If Not IsIn Then
+        Begin
+            FindStrInUserLetters := False;
+            Exit();
+        End;
+    End;
+End;
+
+Procedure AddStringInOrder(Const NewStr: String; Const Ind: Integer);
+Var
+    StringList: TStringList;
+    InsertIndex: Integer;
+Begin
+    StringList := TStringList.Create;
+    Try
+        If FileExists(DICTIONARY_FILE[Language]) Then
+            StringList.LoadFromFile(DICTIONARY_FILE[Language], TEncoding.ANSI)
+        Else
+            StringList.Clear;
+
+        InsertIndex := Ind;
+        StringList.Insert(InsertIndex, NewStr);
+
+        StringList.SaveToFile(DICTIONARY_FILE[Language], TEncoding.ANSI);
+    Finally
+        StringList.Free;
+    End;
+End;
+
+Function CalculatePoints(LastAnswerStr, AnswerStr: AnsiString): Integer;
+Var
+    Pos, ToSave: Integer;
+Begin
+    Pos := BinarySearch(AnswerStr);
+    If FindStrInUserLetters(AnswerStr) Then
+    Begin
+        If Pos < 0 Then
+        Begin
+            var i := ActivePlayer;
+            Repeat
+                ToSave := Application.MessageBox(PWideChar(WideString(PlayerNames[I]) + ', ¬ы согласны на добавление слова в словарь?'), PWideChar(WideString(PlayerNames[I])), MB_YESNO);
+                Application.MessageBox(PWideChar(IntToStr(ToSave)), '');
+                i := (i + 1) mod ColPlayers;
+            Until (i = ActivePlayer) or (ToSave = 7);
+
+            If ToSave = 6 Then
+                AddStringInOrder(AnswerStr, -(Pos + 1))
+            Else
+            Begin
+                CalculatePoints := -Length(AnswerStr);
+                Exit();
+            End;
+        End;
+
+        If (LastAnswerStr[Length(LastAnswerStr)] = AnswerStr[1]) Then
+            CalculatePoints := 2 * Length(AnswerStr)
+        Else
+            CalculatePoints := Length(AnswerStr);
+    End
+    Else
+        CalculatePoints := -Length(AnswerStr);
+
+    Application.MessageBox(PWideChar(IntToStr(Result)), 'Result');
+End;
+
+Procedure DeleteUsedLetters(Const Str: Ansistring);
+Begin
+    For Var I := Low(Str) To High(Str) Do
+    Begin
+        Var
+        J := 1;
+        While J <= Length(PlayersLetters[ActivePlayer]) Do
+            If Str[I] = PlayersLetters[ActivePlayer][J] Then
+                Delete(PlayersLetters[ActivePlayer], J, 1)
+            Else
+                Inc(J);
+    End;
+End;
+
+Procedure TMainForm.WordEditKeyPress(Sender: TObject; Var Key: Char);
+Begin
+    If Key = #13 Then
+    Begin
+        Var
+        CurrentPlayerResult := 0;
+
+        If WordEdit.Text <> '' Then
+        Begin
+            CurrentPlayerResult := CalculatePoints(LastRightWord,
+                FormatString(WordEdit.Text));
+            Inc(PlayersRes[ActivePlayer], CurrentPlayerResult);
+
+            If CurrentPlayerResult > 0 Then
+            Begin
+                LastRightWord := WordEdit.Text;
+
+                DeleteUsedLetters(WordEdit.Text);
+            End;
+        End;
+
+        History[ActivePlayer] := CurrentPlayerResult;
+
+        // Next step
+        ActivePlayer := (ActivePlayer + 1) Mod ColPlayers;
+
+        Var
+        IsGameOn := False;
+        For Var I := 0 To High(History) Do
+            IsGameOn := (IsGameOn) Or (History[I] <> 0);
+
+        if not isGameOn then
+            stopGame();
+
+        LastWordLabel.Caption := WordEdit.Text;
+        CenterLabelByImage(LastWordLabel, LastWordImg);
+
+        WordEdit.Text := '';
+
+        UpdateStates;
+
+
+
     End;
 End;
 
@@ -155,6 +382,8 @@ Begin
     SetLength(PlayersBonus1, ColPlayers);
     SetLength(PlayersBonus2, ColPlayers);
     SetLength(History, ColPlayers);
+
+    LastRightWord := ' ';
 
     For I := 0 To High(UserNames) Do
     Begin
@@ -205,9 +434,10 @@ Begin
         Players[I].Proportional := True;
         Players[I].Name := 'PlayerImage' + IntToStr(I);
         Players[I].Picture.LoadFromFile(PIC_URL[I]);
-        var ar := players[i].picture.height / Players[i].Picture.width;
+        Var
+        Ar := Players[I].Picture.Height / Players[I].Picture.Width;
         Players[I].Width := 170;
-        Players[i].Height := round(Players[I].Width * ar);
+        Players[I].Height := Round(Players[I].Width * Ar);
         Players[I].Parent := Self;
     End;
 
@@ -218,17 +448,17 @@ End;
 
 Procedure TMainForm.FormShow(Sender: TObject);
 Begin
-    Self.Scaled := false;
+    Self.Scaled := False;
     Preparation(Self.Language, Self.PlayerNames);
     CenterImage(Table);
     CenterImage(TopLine);
     CenterImage(Line);
     CenterImage(ActivePlayerImage);
-    WordEdit.Left := (Self.ClientWidth - WordEdit.width) div 2;
+    WordEdit.Left := (Self.ClientWidth - WordEdit.Width) Div 2;
 
     SetPlayersOnTheirPos;
     CreatePlayers;
-    updateStates;
+    UpdateStates;
 End;
 
 Procedure TMainForm.SetPlayersOnTheirPos();
