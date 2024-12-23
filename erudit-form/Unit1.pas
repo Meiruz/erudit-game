@@ -40,7 +40,7 @@ Begin
 
     Try
         MainForm.Language := RUS;
-        MainForm.PlayerNames := ['Bob', 'Helen', 'Karl', 'david'];
+        MainForm.PlayerNames := ['Bob', 'Helen'];
         MainForm.ShowModal;
     Finally
         MainForm.Free;
