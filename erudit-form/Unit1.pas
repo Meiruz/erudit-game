@@ -25,6 +25,7 @@ Type
 
 Var
     StartForm: TStartForm;
+    Scale: Integer;
 
 Implementation
 
@@ -39,7 +40,7 @@ Begin
 
     Try
         MainForm.Language := RUS;
-        MainForm.PlayerNames := ['Bob', 'Helen', 'Karl'];
+        MainForm.PlayerNames := ['Bob', 'Helen', 'Karl', 'david'];
         MainForm.ShowModal;
     Finally
         MainForm.Free;

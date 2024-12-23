@@ -14,6 +14,7 @@ Type
     TArrayStr = Array Of AnsiString;
     TArrayBool = Array Of Boolean;
     TMatrixChar = Array Of AnsiString;
+    TMatrix = Array Of Array Of Integer;
 
     TMainForm = Class(TForm)
         BackgroundImage: TImage;
@@ -22,8 +23,17 @@ Type
         ActivePlayerImage: TImage;
         TopLine: TImage;
         PlayerName: TLabel;
+        BonusFriend: TImage;
+        BonusSwap: TImage;
+        Result: TImage;
+        Coins: TImage;
+    ResultLabel: TLabel;
+    WordEdit: TEdit;
+    LettersLabel: TLabel;
         Procedure SetPlayersOnTheirPos();
         Procedure FormShow(Sender: TObject);
+        Procedure CreatePlayers();
+        Procedure UpdateStates();
     Private
         { Private declarations }
     Public
@@ -41,6 +51,9 @@ Const
     RUS_A = Ord('à');
     ENG_A = Ord('a');
     COL_USER_LETTERS = 10;
+    PIC_URL: Array [0 .. 4] Of String = ('../../images/brownCat.png',
+        '../../images/greyCat.png', '../../images/whiteCat.png',
+        '../../images/blackCat.png', '../../images/redCat.png');
 
 Var
     MainForm: TMainForm;
@@ -58,9 +71,13 @@ Var
     ValueA: Integer;
     History: TArrayInt;
 
+    Players: Array Of TImage;
+
 Implementation
 
 {$R *.dfm}
+
+
 
 Procedure CenterImage(Const Element: TImage);
 Begin
@@ -69,8 +86,32 @@ End;
 
 Procedure CenterLabelByImage(Const Element: TLabel; Const SecondEl: TImage);
 Begin
-    Element.Left := SecondEl.Left + (SecondEl.Width - Element.Width) Div 2;
+    Element.Left := SecondEl.Left + (SecondEl.Width - Element.Width) Div 2 - 5;
 End;
+
+Procedure TMainForm.UpdateStates();
+var
+  I: Integer;
+begin
+    PlayerName.Caption := PlayerNames[ActivePlayer];
+    CenterLabelByImage(PlayerName, ActivePlayerImage);
+
+    ResultLabel.Caption := IntToStr(PlayersRes[ActivePlayer]);
+    CenterLabelByImage(ResultLabel, Result);
+
+    BonusFriend.Visible := PlayersBonus1[ActivePlayer];
+    BonusSwap.Visible := PlayersBonus2[ActivePlayer];
+
+    LettersLabel.Caption := playersLetters[ActivePlayer];
+    CenterLabelByImage(LettersLabel, BackgroundImage);
+    LettersLabel.BringToFront;
+
+    for I := 0 to colplayers-2 do
+    begin
+        Application.MessageBox(PWideChar(PIC_URL[(I + ActivePlayer + 1) mod ColPlayers]), '');
+        players[i].Picture.LoadFromFile(PIC_URL[(I + ActivePlayer + 1) mod ColPlayers]);
+    end;
+end;
 
 Function GetRandomLetter(): Ansichar;
 Var
@@ -87,6 +128,16 @@ Begin
             Dec(LettersBank[K]);
             Exit;
         End;
+    End;
+End;
+
+Function GetPositionsOfPlayers(Const Count: Integer): TMatrix;
+Begin
+    Case Count Of
+        2: Result := [[456, 88]];
+        3: Result := [[795, 225], [123, 225]];
+        4: Result := [[795, 225], [456, 88], [123, 225]];
+        5: Result := [[795, 225], [603, 65], [299, 65], [123, 225]];
     End;
 End;
 
@@ -139,15 +190,45 @@ Begin
 
 End;
 
+Procedure TMainForm.CreatePlayers();
+Var
+    Positions: TMatrix;
+Begin
+    Positions := GetPositionsOfPlayers(ColPlayers);
+    SetLength(Players, ColPlayers);
+
+    For Var I := Low(Positions) To High(Positions) Do
+    Begin
+        Players[I] := TImage.Create(Self);
+        Players[I].Left := Positions[I][0];
+        Players[I].Top := Positions[I][1];
+        Players[I].Proportional := True;
+        Players[I].Name := 'PlayerImage' + IntToStr(I);
+        Players[I].Picture.LoadFromFile(PIC_URL[I]);
+        var ar := players[i].picture.height / Players[i].Picture.width;
+        Players[I].Width := 170;
+        Players[i].Height := round(Players[I].Width * ar);
+        Players[I].Parent := Self;
+    End;
+
+    Table.BringToFront;
+    Line.BringToFront;
+
+End;
+
 Procedure TMainForm.FormShow(Sender: TObject);
 Begin
+    Self.Scaled := false;
     Preparation(Self.Language, Self.PlayerNames);
     CenterImage(Table);
     CenterImage(TopLine);
     CenterImage(Line);
     CenterImage(ActivePlayerImage);
-    CenterLabelByImage(PlayerName, ActivePlayerImage);
+    WordEdit.Left := (Self.ClientWidth - WordEdit.width) div 2;
+
     SetPlayersOnTheirPos;
+    CreatePlayers;
+    updateStates;
 End;
 
 Procedure TMainForm.SetPlayersOnTheirPos();
